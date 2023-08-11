@@ -1,0 +1,23 @@
+server:
+  port: 8099
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/master
+          jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/towersly_app
+    username: postgres
+    password: postgre
+
+jwt:
+  auth:
+    converter:
+      resource-id: t_client
+      principle-attribute: preferred_username
+
+
