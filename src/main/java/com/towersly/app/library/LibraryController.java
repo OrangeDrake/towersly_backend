@@ -14,8 +14,8 @@ public class LibraryController {
     private LibraryService libraryService;
 
     @PostMapping("/addshelf")
-    public void creteShelf(@RequestBody  Shelf shelf){
-       libraryService.creteShelf(shelf);
+    public Shelf creteShelf(@RequestBody Shelf shelf) {
+        return libraryService.creteShelf(shelf);
     }
 
 }

@@ -14,6 +14,6 @@ public class Shelf {
     private boolean is_active;
     private int rank;
     private int next_work_rank;
-    private long user_id;
+    private int user_id;
 
 }
