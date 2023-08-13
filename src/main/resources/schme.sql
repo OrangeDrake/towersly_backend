@@ -18,3 +18,17 @@ CREATE TABLE IF NOT EXISTS public.user
     next_distribution_rank integer NOT NULL,
     next_shelf_rank integer NOT NULL
 );
+
+
+CREATE TABLE IF NOT EXISTS public.work
+(
+    id bigserial PRIMARY KEY,
+    name character varying(255) NOT NULL CHECK (name <> ''),
+    is_completed boolean NOT NULL,
+    rank integer NOT NULL,
+    description character varying(255),
+    expected_time integer NOT NULL,
+    actual_time integer NOT NULL,
+    shelf_id bigint NOT NULL REFERENCES public.shelf(id),
+    UNIQUE (shelf_id, name)
+)

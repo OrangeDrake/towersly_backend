@@ -3,17 +3,21 @@ package com.towersly.app.library.model;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @AllArgsConstructor
 @Getter
 @Setter
-public class Shelf {
+@ToString
+public class Work {
 
     private long id;
     private String name;
-    private boolean is_active;
+    private boolean isCompleted;
+    private String description;
     private int rank;
-    private int next_work_rank;
-    private int userId;
+    private int expectedTime;
+    private int actualTime;
+    private long shelfId;
 
 }

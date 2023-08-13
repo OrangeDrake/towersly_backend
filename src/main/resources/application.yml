@@ -1,5 +1,5 @@
 server:
-  port: 8099
+  port: 8090
 
 spring:
   security:
@@ -20,4 +20,7 @@ jwt:
       resource-id: t_client
       principle-attribute: preferred_username
 
-
+logging:
+  file:
+    path: .
+    name: my_log.txt

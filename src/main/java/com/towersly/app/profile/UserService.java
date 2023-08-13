@@ -14,16 +14,28 @@ public class UserService {
 
     UserDAO userDAO;
 
-    public int getUserId(){
+    public int getUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String name = authentication.getName();
-        return userDAO.getUserId(name);
+        int id =  userDAO.getUserId(name);
+        if (id == 0){
+            log.info("User: " + name + " not  fount");
+        }
+        return id;
     }
 
-    public UserWithIdAndNextShelfRank getUserWithIdAndNextShelfRank(){
+    public UserWithIdAndNextShelfRank getUserWithIdAndNextShelfRank() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String name = authentication.getName();
-        return userDAO.getUserWithIdAndNextShelfRank(name);
+        UserWithIdAndNextShelfRank userWithIdAndNextShelfRank = userDAO.getUserWithIdAndNextShelfRank(name);
+        if (userWithIdAndNextShelfRank == null) {
+            log.info("User: " + name + " not  fount");
+        }
+        return userWithIdAndNextShelfRank;
+    }
+
+    public void updateNextShelfRank(int id, int nextShelfRank) {
+        userDAO.updateNextShelfRank(id, nextShelfRank);
     }
 
 

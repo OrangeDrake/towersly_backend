@@ -4,22 +4,20 @@ import com.towersly.app.library.model.*;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreatorFactory;
 import org.springframework.jdbc.core.SqlParameter;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
 
-import java.sql.PreparedStatement;
-import java.sql.Statement;
 import java.sql.Types;
 import java.util.*;
 
 @Component
 @Slf4j
 @AllArgsConstructor
-public class LibraryDAO {
+public class ShelfDAO {
 
     private JdbcTemplate jdbcTemplate;
 
@@ -54,9 +52,9 @@ public class LibraryDAO {
 
     public Shelf create(Shelf shelf) {
 
-        String sql = "insert into public.shelf (name, is_active, next_work_rank, rank, user_id) values (?, ?, 0, ?, ?) ";
+        String sql = "insert into public.shelf (name, is_active, next_work_rank, rank, user_id) values (?, ?, 0, ?, ?)";
 
-        var decParams = List.of(new SqlParameter(Types.VARCHAR, "name"), new SqlParameter(Types.BOOLEAN, "is_active"),
+        var decParams = Arrays.asList(new SqlParameter(Types.VARCHAR, "name"), new SqlParameter(Types.BOOLEAN, "is_active"),
                 new SqlParameter(Types.INTEGER, "rank"), new SqlParameter(Types.INTEGER, "user_id"));
         var pscf = new PreparedStatementCreatorFactory(sql, decParams) {
             {
@@ -64,14 +62,24 @@ public class LibraryDAO {
                 setGeneratedKeysColumnNames("id");
             }
         };
-
-        var psc = pscf.newPreparedStatementCreator(List.of(shelf.getName(), shelf.is_active(), shelf.getRank(), shelf.getUser_id()));
-
+        var psc = pscf.newPreparedStatementCreator(Arrays.asList(shelf.getName(), shelf.is_active(), shelf.getRank(), shelf.getUserId()));
         jdbcTemplate.update(psc, generatedKeyHolder);
-
         var id = Objects.requireNonNull(generatedKeyHolder.getKey()).longValue();
         shelf.setId(id);
-        shelf.setUser_id(0);
+        shelf.setUserId(0);
+        return shelf;
+    }
+
+    ShelfWithIdAndNextWorkRankAndUserId readShelfWithIdAndNextWorkRankAndUserId(long id) {
+        String sql = "SELECT next_work_rank, user_id from shelf where id = ?";
+        ShelfWithIdAndNextWorkRankAndUserId shelf = null;
+        try {
+            shelf = jdbcTemplate.queryForObject(sql, new Object[]{id}, (rs, rownumber) ->
+                    new ShelfWithIdAndNextWorkRankAndUserId(id, rs.getInt("next_work_rank"), rs.getInt("user_id")));
+        } catch (DataAccessException ex) {
+            log.error("Shelf not found: " + id);
+        }
         return shelf;
     }
 }
+
