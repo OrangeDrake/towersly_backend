@@ -1,12 +1,15 @@
 package com.towersly.app.library;
 
 import com.towersly.app.library.model.Shelf;
+import com.towersly.app.library.model.ShelfContainingWorks;
 import com.towersly.app.library.model.Work;
 import com.towersly.app.profile.UserService;
 import com.towersly.app.profile.model.UserWithIdAndNextShelfRank;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -58,4 +61,19 @@ public class LibraryService {
         log.info("User: " + userId + "| Work: " + work.getName() + " creted");
         return work;
     }
+
+    public List<ShelfContainingWorks> getAllShelves(){
+        int userId  = userService.getUserId();
+        if(userId == 0){
+            log.info("Shelves not received");
+            return null;
+        }
+        List<ShelfContainingWorks> shelves = shelfDAO.readAllShelves(userId);
+        if(userId == 0){
+            log.info("Shelves not received");
+            return null;
+        }
+        return shelves;
+    }
+
 }

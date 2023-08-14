@@ -8,7 +8,6 @@ import lombok.ToString;
 @AllArgsConstructor
 @Getter
 @Setter
-@ToString
 public class Work {
 
     private long id;

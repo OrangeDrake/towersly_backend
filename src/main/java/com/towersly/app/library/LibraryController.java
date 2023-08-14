@@ -1,6 +1,7 @@
 package com.towersly.app.library;
 
 import com.towersly.app.library.model.Shelf;
+import com.towersly.app.library.model.ShelfContainingWorks;
 import com.towersly.app.library.model.Work;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,11 @@ public class LibraryController {
 
     private LibraryService libraryService;
 
+    @GetMapping
+    public Iterable<ShelfContainingWorks> getAllShelves(){
+        var result = libraryService.getAllShelves();
+        return  result;
+    }
     @PostMapping("/addshelf")
     public Shelf creteShelf(@RequestBody Shelf shelf) {
         return libraryService.creteShelf(shelf);
