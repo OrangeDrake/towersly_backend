@@ -33,8 +33,13 @@ public class LibraryService {
         userService.updateNextShelfRank(userId, rank);
         shelf.setUserId(userId);
         shelf.set_active(true);
+        Shelf createdShelf = shelfDAO.create(shelf);
+        if(shelf == null){
+            log.info("User: " + userId + "| Shelf: " + shelf.getName() + " not  creted");
+            return null;
+        }
         log.info("User: " + userId + "| Shelf: " + shelf.getName() + " creted");
-        return shelfDAO.create(shelf);
+        return createdShelf;
     }
 
     public Work createWork(Work work){
@@ -53,13 +58,14 @@ public class LibraryService {
         }
         int rank = shelfWithIdAndNextWorkRankAndUserId.getNext_work_rank();
         work.setRank(rank++);
-        work = workDAO.create(work);
+        shelfDAO.updateNextWorkfRank(shelfId, rank);
+        Work createdWork = workDAO.create(work);
         if(work == null){
-            log.info("Work: " + work.getName() + " not  creted");
+            log.info("User: " + userId + "| Work: " + work.getName() + " not  creted");
             return null;
         }
         log.info("User: " + userId + "| Work: " + work.getName() + " creted");
-        return work;
+        return createdWork;
     }
 
     public List<ShelfContainingWorks> getAllShelves(){
@@ -69,8 +75,8 @@ public class LibraryService {
             return null;
         }
         List<ShelfContainingWorks> shelves = shelfDAO.readAllShelves(userId);
-        if(userId == 0){
-            log.info("Shelves not received");
+        if(shelves == null){
+            log.info("User: " + userId + "| Shelves not received");
             return null;
         }
         return shelves;
