@@ -21,7 +21,7 @@ public class LibraryService {
 
     private UserService userService;
 
-    public Shelf addShelf(Shelf shelf) {
+    public ShelfContainingWorks addShelf(Shelf shelf) {
         UserWithIdAndNextShelfRank userWithIdAndNextShelfRank  = userService.getUserWithIdAndNextShelfRank();
         if(userWithIdAndNextShelfRank == null){
             log.info("Shelf: " + shelf.getName() + " not  creted");
@@ -33,7 +33,7 @@ public class LibraryService {
         userService.updateNextShelfRank(userId, rank);
         shelf.setUserId(userId);
         shelf.setActive(true);
-        Shelf createdShelf = shelfDAO.create(shelf);
+        ShelfContainingWorks createdShelf = shelfDAO.create(shelf);
         if(createdShelf == null){
             log.info("User: " + userId + "| Shelf: " + shelf.getName() + " not  creted");
             return null;

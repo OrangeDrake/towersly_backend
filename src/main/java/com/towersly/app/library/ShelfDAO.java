@@ -50,7 +50,7 @@ public class ShelfDAO {
 //    }
 
 
-    public Shelf create(Shelf shelf) {
+    public ShelfContainingWorks create(Shelf shelf) {
 
         String sql = "insert into public.shelf (name, is_active, next_work_rank, rank, user_id) values (?, ?, 0, ?, ?)";
 
@@ -65,9 +65,7 @@ public class ShelfDAO {
         var psc = pscf.newPreparedStatementCreator(Arrays.asList(shelf.getName(), shelf.isActive(), shelf.getRank(), shelf.getUserId()));
         jdbcTemplate.update(psc, generatedKeyHolder);
         var id = Objects.requireNonNull(generatedKeyHolder.getKey()).longValue();
-        shelf.setId(id);
-        shelf.setUserId(0);
-        return shelf;
+        return new ShelfContainingWorks(id, shelf.getName(), shelf.isActive(), shelf.getRank());
     }
 
     public ShelfWithIdAndNextWorkRankAndUserId readShelfWithIdAndNextWorkRankAndUserId(long id) {
@@ -142,9 +140,6 @@ public class ShelfDAO {
         for (Map row : rows) {
             long id = (long) row.get("id");
             if (id != prevousId) {
-                if (currentShelf != null) {
-                    shelves.add(currentShelf);
-                }
                 String name = (String) row.get("name");
                 boolean isActive = (boolean) row.get("is_active");
                 int rank = (int) row.get("rank");
@@ -153,7 +148,7 @@ public class ShelfDAO {
                 prevousId = id;
             }
             Object workIdObject = row.get("w_id");
-            if (workIdObject != null){
+            if (workIdObject != null) {
                 long wotkId = (long) workIdObject;
                 String workName = (String) row.get("w_name");
                 boolean workIsComelete = (boolean) row.get("w_is_completed");
@@ -161,7 +156,7 @@ public class ShelfDAO {
                 int workRank = (int) row.get("w_rank");
                 int workExpectedTime = (int) row.get("w_expected_Time");
                 int workActualaTime = (int) row.get("w_actual_Time");
-                Work work = new Work(wotkId,workName,workIsComelete,workDescription,workRank,workExpectedTime,workActualaTime, id);
+                Work work = new Work(wotkId, workName, workIsComelete, workDescription, workRank, workExpectedTime, workActualaTime, id);
                 currentShelf.getWorks().add(work);
             }
         }

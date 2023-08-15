@@ -17,10 +17,11 @@ public class LibraryController {
 
     @GetMapping
     public Iterable<ShelfContainingWorks> getAllShelves(){
-        return libraryService.getAllShelves();
+        var result = libraryService.getAllShelves();
+        return result;
     }
     @PostMapping("/addshelf")
-    public Shelf addShelf(@RequestBody Shelf shelf) {
+    public ShelfContainingWorks addShelf(@RequestBody Shelf shelf) {
         return libraryService.addShelf(shelf);
     }
 
