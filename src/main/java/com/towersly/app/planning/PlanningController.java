@@ -17,11 +17,10 @@ public class PlanningController {
 
     private PlanningService planningService;
 
-//    @GetMapping
-//    public Iterable<ShelfContainingWorks> getAllShelves(){
-//        var result = libraryService.getAllShelves();
-//        return  result;
-//    }
+    @GetMapping
+    public Iterable<Distribution> getAllDistributions(){
+        return planningService.getAllDistributions();
+    }
     @PostMapping("/adddistribution")
     public Distribution addDistribution(@RequestBody Distribution distribution) {
         return planningService.addDistribution(distribution);

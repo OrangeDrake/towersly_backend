@@ -14,7 +14,7 @@ public class ShelfContainingWorks {
 
     private long id;
     private String name;
-    private boolean is_active;
+    private boolean isActive;
     private int rank;
     private final List<Work> works = new LinkedList<Work>();
 

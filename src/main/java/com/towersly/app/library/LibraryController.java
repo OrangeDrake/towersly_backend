@@ -17,8 +17,7 @@ public class LibraryController {
 
     @GetMapping
     public Iterable<ShelfContainingWorks> getAllShelves(){
-        var result = libraryService.getAllShelves();
-        return  result;
+        return libraryService.getAllShelves();
     }
     @PostMapping("/addshelf")
     public Shelf addShelf(@RequestBody Shelf shelf) {

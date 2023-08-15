@@ -1,15 +1,9 @@
 package com.towersly.app.planning;
 
-import com.towersly.app.library.ShelfDAO;
-import com.towersly.app.library.WorkDAO;
-import com.towersly.app.library.model.Shelf;
 import com.towersly.app.library.model.ShelfContainingWorks;
-import com.towersly.app.library.model.Work;
 import com.towersly.app.planning.model.Distribution;
-import com.towersly.app.profile.DistributionDAO;
 import com.towersly.app.profile.UserService;
 import com.towersly.app.profile.model.UserWithIdAndNextDistributionRank;
-import com.towersly.app.profile.model.UserWithIdAndNextShelfRank;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -44,5 +38,19 @@ public class PlanningService {
         }
         log.info("User: " + userId + "| Distribution: " + distribution.getName() + " creted");
         return createdDistribution;
+    }
+
+    public List<Distribution> getAllDistributions(){
+        int userId  = userService.getUserId();
+        if(userId == 0){
+            log.info("Shelves not received");
+            return null;
+        }
+        List<Distribution> distributions = distributionDAO.readAllDistributions(userId);
+        if(distributions == null){
+            log.info("User: " + userId + "| Distributions not received");
+            return null;
+        }
+        return distributions;
     }
 }
