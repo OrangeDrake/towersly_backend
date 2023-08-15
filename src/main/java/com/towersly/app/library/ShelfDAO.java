@@ -62,7 +62,7 @@ public class ShelfDAO {
                 setGeneratedKeysColumnNames("id");
             }
         };
-        var psc = pscf.newPreparedStatementCreator(Arrays.asList(shelf.getName(), shelf.is_active(), shelf.getRank(), shelf.getUserId()));
+        var psc = pscf.newPreparedStatementCreator(Arrays.asList(shelf.getName(), shelf.isActive(), shelf.getRank(), shelf.getUserId()));
         jdbcTemplate.update(psc, generatedKeyHolder);
         var id = Objects.requireNonNull(generatedKeyHolder.getKey()).longValue();
         shelf.setId(id);

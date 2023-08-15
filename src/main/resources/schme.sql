@@ -32,3 +32,17 @@ CREATE TABLE IF NOT EXISTS public.work
     shelf_id bigint NOT NULL REFERENCES public.shelf(id),
     UNIQUE (shelf_id, name)
 )
+
+CREATE TABLE IF NOT EXISTS public.distribution
+(
+    id bigserial PRIMARY KEY,
+    name character varying(255),
+    is_active boolean NOT NULL,
+    rank integer NOT NULL,
+    projection jsonb,
+    connection jsonb,
+    user_id bigint NOT NULL REFERENCES public.user(id),
+    UNIQUE (user_id, name)
+);
+
+

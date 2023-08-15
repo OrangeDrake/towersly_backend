@@ -10,7 +10,7 @@ import lombok.Setter;
 public class ShelfWithIdAndNextWorkRankAndUserId {
 
     private long id;
-    private int next_work_rank;
-    private int user_id;
+    private int nextWorkRank;
+    private int userId;
 
 }

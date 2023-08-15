@@ -21,7 +21,7 @@ public class LibraryService {
 
     private UserService userService;
 
-    public Shelf creteShelf(Shelf shelf) {
+    public Shelf addShelf(Shelf shelf) {
         UserWithIdAndNextShelfRank userWithIdAndNextShelfRank  = userService.getUserWithIdAndNextShelfRank();
         if(userWithIdAndNextShelfRank == null){
             log.info("Shelf: " + shelf.getName() + " not  creted");
@@ -32,9 +32,9 @@ public class LibraryService {
         shelf.setRank(rank++);
         userService.updateNextShelfRank(userId, rank);
         shelf.setUserId(userId);
-        shelf.set_active(true);
+        shelf.setActive(true);
         Shelf createdShelf = shelfDAO.create(shelf);
-        if(shelf == null){
+        if(createdShelf == null){
             log.info("User: " + userId + "| Shelf: " + shelf.getName() + " not  creted");
             return null;
         }
@@ -50,13 +50,13 @@ public class LibraryService {
         }
         long shelfId = work.getShelfId();
         var shelfWithIdAndNextWorkRankAndUserId = shelfDAO.readShelfWithIdAndNextWorkRankAndUserId(shelfId);
-        int userIdFromShelf = shelfWithIdAndNextWorkRankAndUserId.getUser_id();
+        int userIdFromShelf = shelfWithIdAndNextWorkRankAndUserId.getUserId();
         if(userId != userIdFromShelf){
             log.info("User: " + userId + "| Trying to write to Shelf id: " + shelfWithIdAndNextWorkRankAndUserId.getId() + ", User: " + userIdFromShelf);
             log.info("Work: " + work.getName() + " not  creted");
             return null;
         }
-        int rank = shelfWithIdAndNextWorkRankAndUserId.getNext_work_rank();
+        int rank = shelfWithIdAndNextWorkRankAndUserId.getNextWorkRank();
         work.setRank(rank++);
         shelfDAO.updateNextWorkfRank(shelfId, rank);
         Work createdWork = workDAO.create(work);

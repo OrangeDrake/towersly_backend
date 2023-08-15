@@ -21,12 +21,12 @@ public class LibraryController {
         return  result;
     }
     @PostMapping("/addshelf")
-    public Shelf creteShelf(@RequestBody Shelf shelf) {
-        return libraryService.creteShelf(shelf);
+    public Shelf addShelf(@RequestBody Shelf shelf) {
+        return libraryService.addShelf(shelf);
     }
 
     @PostMapping("/addwork")
-    public Work creteShelf(@RequestBody Work work) {
+    public Work addWork(@RequestBody Work work) {
         return libraryService.createWork(work);
     }
 

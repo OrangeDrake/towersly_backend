@@ -1,5 +1,6 @@
 package com.towersly.app.profile;
 
+import com.towersly.app.profile.model.UserWithIdAndNextDistributionRank;
 import com.towersly.app.profile.model.UserWithIdAndNextShelfRank;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,9 +34,26 @@ public class UserDAO {
         return userWithIdAndNextShelfRank;
     }
 
+    public UserWithIdAndNextDistributionRank getUserWithIdAndNextDistributionRank(String name) {
+        String sql = "select id, next_distribution_rank from public.user where name = ?";
+        UserWithIdAndNextDistributionRank userWithIdAndNextDistributionRank = null;
+        try {
+            userWithIdAndNextDistributionRank = jdbcTemplate.queryForObject(sql, new Object[]{name}, (rs, rownumber) ->
+                    new UserWithIdAndNextDistributionRank(rs.getInt("id"), rs.getInt("next_distribution_rank")));
+        } catch (DataAccessException ex) {
+            log.error("User not found: " + name);
+        }
+        return userWithIdAndNextDistributionRank;
+    }
+
     public void updateNextShelfRank(int id,  int nextShelfRank){
         String sql = "update public.user set next_shelf_rank = ? WHERE id = ?";
         jdbcTemplate.update(sql, nextShelfRank, id);
+    }
+
+    public void updateNextDistributionfRank(int id,  int nexDistributionRank){
+        String sql = "update public.user set next_distribution_rank = ? WHERE id = ?";
+        jdbcTemplate.update(sql, nexDistributionRank, id);
     }
 
 }
