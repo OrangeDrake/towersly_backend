@@ -9,9 +9,11 @@ import com.towersly.app.library.model.ShelfContainingWorks;
 import com.towersly.app.library.model.ShelfWithIdAndNextWorkRankAndUserId;
 import com.towersly.app.library.model.Work;
 import com.towersly.app.planning.model.Distribution;
+import com.towersly.app.planning.model.DistributionWithConnectionAndUseId;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.repository.query.Param;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreatorFactory;
 import org.springframework.jdbc.core.SqlParameter;
@@ -44,6 +46,7 @@ public class DistributionDAO {
             }
         };
 
+        //neni nutny novy connection i distribution je vzdy null
         String connectionText = null;
         JsonNode connection = distribution.getConnection();
         if (connection != null) {
@@ -68,7 +71,6 @@ public class DistributionDAO {
         String sql = "select id, is_active, name, rank, connection, projection from public.distribution where user_id = ?";
 
         distributions = jdbcTemplate.query(sql, new Object[]{userId}, ((rs, rowNum) -> {
-
             JsonNode connection = null;
             String connectionText = rs.getString("connection");
 
@@ -96,9 +98,43 @@ public class DistributionDAO {
             return new Distribution(rs.getLong("id"), rs.getBoolean("is_active"), rs.getString("name"), rs.getInt("rank"), connection, projection, 0);
 
         }));
-
         return distributions;
     }
+
+    public void addConnectedShelf(Long id, String shelfNameJson) {
+        String sql = "UPDATE Distribution SET connection = jsonb_insert(connection, '{shelves_names,-1}',cast(? as jsonb), true) WHERE id = ?";
+        jdbcTemplate.update(sql, shelfNameJson  , id);
+    }
+
+    public DistributionWithConnectionAndUseId getDistributionWithConnectionAndUseId(long id){
+        DistributionWithConnectionAndUseId distributions = null;
+        String sql = "select connection, user_id from public.distribution where id = ?";
+
+        distributions = jdbcTemplate.queryForObject(sql, new Object[]{id}, ((rs, rowNum) -> {
+
+            JsonNode connection = null;
+            String connectionText = rs.getString("connection");
+            try {
+                if (connectionText != null) {
+                    connection = mapper.readTree(connectionText);
+                }
+            } catch (JsonProcessingException e) {
+                log.error("Distribution: " + id + "| Distrubution Connection json parsing error");
+                return null;
+            }
+
+            return new DistributionWithConnectionAndUseId(connection, rs.getInt("user_id"));
+
+        }));
+        return distributions;
+
+    }
+
+    public void createConnection(Long id, String connectionText) {
+        String sql = "UPDATE Distribution SET connection = cast(? as json) WHERE id = ?";
+        jdbcTemplate.update(sql, connectionText  , id);
+    }
+
 
 //
 }

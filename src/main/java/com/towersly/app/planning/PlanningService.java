@@ -1,7 +1,10 @@
 package com.towersly.app.planning;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.towersly.app.library.model.ShelfContainingWorks;
 import com.towersly.app.planning.model.Distribution;
+import com.towersly.app.planning.model.DistributionWithConnectionAndUseId;
 import com.towersly.app.profile.UserService;
 import com.towersly.app.profile.model.UserWithIdAndNextDistributionRank;
 import lombok.AllArgsConstructor;
@@ -19,10 +22,12 @@ public class PlanningService {
 
     private UserService userService;
 
+    final private ObjectMapper mapper = new ObjectMapper();
+
     public Distribution addDistribution(Distribution distribution) {
         UserWithIdAndNextDistributionRank userWithIdAndNextDistributionRank  = userService.getUserWithIdAndNextDistributionRank();
         if(userWithIdAndNextDistributionRank == null){
-            log.info("Distribution: " + distribution.getName() + " not  creted");
+            log.warn("Distribution: " + distribution.getName() + " not  creted");
             return null;
         }
         int rank = userWithIdAndNextDistributionRank.getNextDistributionRank();
@@ -33,7 +38,7 @@ public class PlanningService {
         distribution.setActive(true);
         Distribution createdDistribution = distributionDAO.create(distribution);
         if(createdDistribution == null){
-            log.info("User: " + userId + "| Distribution: " + distribution.getName() + " not  creted");
+            log.warn("User: " + userId + "| Distribution: " + distribution.getName() + " not  creted");
             return null;
         }
         log.info("User: " + userId + "| Distribution: " + distribution.getName() + " creted");
@@ -43,14 +48,57 @@ public class PlanningService {
     public List<Distribution> getAllDistributions(){
         int userId  = userService.getUserId();
         if(userId == 0){
-            log.info("Shelves not received");
+            log.warn("User: " + userId + "|Shelves not received");
             return null;
         }
         List<Distribution> distributions = distributionDAO.readAllDistributions(userId);
         if(distributions == null){
-            log.info("User: " + userId + "| Distributions not received");
+            log.warn("User: " + userId + "| Distributions not received");
             return null;
         }
         return distributions;
+    }
+
+    public boolean addConnectedShelf(Long distributionId, String shelfName){
+        int userId  = userService.getUserId();
+        DistributionWithConnectionAndUseId distribution = distributionDAO.getDistributionWithConnectionAndUseId(distributionId);
+        int userIdFromDistribution = distribution.getUserId();
+
+        if(userId != userIdFromDistribution){
+            log.warn("User: " + userId + "| Trying to write to Distribution id: " + distributionId + ", User: " + userIdFromDistribution);
+            log.warn("User: " + userId + "| Connection to shelf: " + shelfName + " not  creted");
+            return false;
+        }
+
+        JsonNode connection = distribution.getConnection();
+        if(connection == null){
+            String connectionText = "{\n" +
+                    "    \"shelves_names\" : [\""+ shelfName + "\"]\n" +
+                    "}";
+            distributionDAO.createConnection(distributionId, connectionText);
+            return true;
+        }
+
+        var fields = connection.fields();
+        while (fields.hasNext()){
+            var field = fields.next();
+            if (field.getKey().equals("shelves_names")){
+                var shelves_names = field.getValue();
+                for (JsonNode shelf_name : shelves_names){
+                    if(shelf_name.asText().equals(shelfName)){
+                        log.warn("User: " + userId + "| Shlelve name: " + shelfName + " is alredy connected ");
+                        log.warn("User: " + userId + "| Connection to shelf: " + shelfName + " not  creted");
+                        return false;
+                    }
+                }
+
+            }
+            break;
+        }
+
+        String shelfNameJson ="\"" + shelfName + "\"";
+        distributionDAO.addConnectedShelf(distributionId,shelfNameJson);
+        log.info("User: " + userId + "| Shlelve name: " + shelfName + " created ");
+        return true;
     }
 }

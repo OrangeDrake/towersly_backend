@@ -29,5 +29,4 @@ public class LibraryController {
     public Work addWork(@RequestBody Work work) {
         return libraryService.createWork(work);
     }
-
 }

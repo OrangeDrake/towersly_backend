@@ -26,4 +26,15 @@ public class PlanningController {
         return planningService.addDistribution(distribution);
     }
 
+//    @GetMapping(value = "/addconnectedshelf")
+//    public void addConnectedShelf(@RequestParam long distributionId, @RequestParam  String shelfName){
+//        planningService.addConnectedShelf(distributionId, shelfName);
+//    }
+
+    @GetMapping(value = "/addconnectedshelf")
+    public boolean addConnectedShelf(@RequestParam long distributionId, @RequestParam  String shelfName){
+        return planningService.addConnectedShelf(distributionId, shelfName);
+    }
+
+
 }

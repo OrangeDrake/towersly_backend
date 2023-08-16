@@ -20,7 +20,7 @@ public class UserService {
         String name = authentication.getName();
         int id = userDAO.getUserId(name);
         if (id == 0) {
-            log.info("User: " + name + " not  fount");
+            log.warn("User: " + name + " not  fount");
         }
         return id;
     }
@@ -30,7 +30,7 @@ public class UserService {
         String name = authentication.getName();
         UserWithIdAndNextShelfRank userWithIdAndNextShelfRank = userDAO.getUserWithIdAndNextShelfRank(name);
         if (userWithIdAndNextShelfRank == null) {
-            log.info("User: " + name + " not  fount");
+            log.warn("User: " + name + " not  fount");
         }
         return userWithIdAndNextShelfRank;
     }
@@ -40,7 +40,7 @@ public class UserService {
         String name = authentication.getName();
         UserWithIdAndNextDistributionRank userWithIdAndNextDistributionRank = userDAO.getUserWithIdAndNextDistributionRank(name);
         if (userWithIdAndNextDistributionRank == null) {
-            log.info("User: " + name + " not  fount");
+            log.warn("User: " + name + " not  fount");
         }
         return userWithIdAndNextDistributionRank;
     }
