@@ -106,6 +106,11 @@ public class DistributionDAO {
         jdbcTemplate.update(sql, shelfNameJson  , id);
     }
 
+    public void addConnectedShelfwithType(Long id, String shelfNameJson) {
+        String sql = "UPDATE Distribution SET connection = jsonb_insert(jsonb_insert(connection, '{shelves_names,-1}',cast(? as jsonb), true), '{type}','\"concat\"') WHERE id = ?";
+        jdbcTemplate.update(sql, shelfNameJson  , id);
+    }
+
     public DistributionWithConnectionAndUseId getDistributionWithConnectionAndUseId(long id){
         DistributionWithConnectionAndUseId distributions = null;
         String sql = "select connection, user_id from public.distribution where id = ?";

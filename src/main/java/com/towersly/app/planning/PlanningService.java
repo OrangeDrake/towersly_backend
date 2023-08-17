@@ -2,6 +2,7 @@ package com.towersly.app.planning;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.towersly.app.library.model.ShelfContainingWorks;
 import com.towersly.app.planning.model.Distribution;
 import com.towersly.app.planning.model.DistributionWithConnectionAndUseId;
@@ -80,24 +81,36 @@ public class PlanningService {
         }
 
         var fields = connection.fields();
+        int numberofConections = 0;
+        String typeOfconection = null;
+
         while (fields.hasNext()){
             var field = fields.next();
             if (field.getKey().equals("shelves_names")){
                 var shelves_names = field.getValue();
                 for (JsonNode shelf_name : shelves_names){
+                    numberofConections++;
                     if(shelf_name.asText().equals(shelfName)){
                         log.warn("User: " + userId + "| Shlelve name: " + shelfName + " is alredy connected ");
                         log.warn("User: " + userId + "| Connection to shelf: " + shelfName + " not  creted");
                         return false;
                     }
                 }
-
+                var shelves_names_array =  (ArrayNode) shelves_names;
+                shelves_names_array.add(shelfName);
             }
-            break;
+
+            else if (field.getKey().equals("type")){
+                typeOfconection = field.getValue().asText();
+            }
         }
 
         String shelfNameJson ="\"" + shelfName + "\"";
-        distributionDAO.addConnectedShelf(distributionId,shelfNameJson);
+        if(typeOfconection !=null || numberofConections == 0){
+        distributionDAO.addConnectedShelfwithType(distributionId,shelfNameJson);}
+        else{ //pokud je typ nastaven z minula nebo connection byly po predchozim mazani prazdne a ted je jedna o prvni conncetion nebude treba type vytvaret
+            distributionDAO.addConnectedShelfwithType(distributionId,shelfNameJson);
+        }
         log.info("User: " + userId + "| Shlelve name: " + shelfName + " created ");
         return true;
     }
