@@ -3,17 +3,10 @@ package com.towersly.app.planning;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.util.JSONPObject;
-import com.towersly.app.library.model.Shelf;
-import com.towersly.app.library.model.ShelfContainingWorks;
-import com.towersly.app.library.model.ShelfWithIdAndNextWorkRankAndUserId;
-import com.towersly.app.library.model.Work;
 import com.towersly.app.planning.model.Distribution;
 import com.towersly.app.planning.model.DistributionWithConnectionAndUseId;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataAccessException;
-import org.springframework.data.repository.query.Param;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreatorFactory;
 import org.springframework.jdbc.core.SqlParameter;
@@ -101,15 +94,23 @@ public class DistributionDAO {
         return distributions;
     }
 
-    public void addConnectedShelf(Long id, String shelfNameJson) {
-        String sql = "UPDATE Distribution SET connection = jsonb_insert(connection, '{shelves_names,-1}',cast(? as jsonb), true) WHERE id = ?";
+//    public void addConnectedShelf(Long id, String shelfNameJson) {
+//        String sql = "UPDATE Distribution SET connection = jsonb_insert(connection, '{shelves_names,-1}',cast(? as jsonb), true) WHERE id = ?";
+//        jdbcTemplate.update(sql, shelfNameJson  , id);
+//    }
+//
+//    public void addConnectedShelfwithType(Long id, String shelfNameJson) {
+//        String sql = "UPDATE Distribution SET connection = jsonb_insert(jsonb_insert(connection, '{shelves_names,-1}',cast(? as jsonb), true), '{type}','\"concat\"') WHERE id = ?";
+//        jdbcTemplate.update(sql, shelfNameJson  , id);
+//    }
+
+        public void deleteConnectedShelf(Long id, String shelfNameJson) {
+        String sql = "UPDATE Distribution SET connection = jsonb_set(connection, '{shelves_names}',(connection->'shelves_names') - ?, true) WHERE id = ?";
         jdbcTemplate.update(sql, shelfNameJson  , id);
     }
 
-    public void addConnectedShelfwithType(Long id, String shelfNameJson) {
-        String sql = "UPDATE Distribution SET connection = jsonb_insert(jsonb_insert(connection, '{shelves_names,-1}',cast(? as jsonb), true), '{type}','\"concat\"') WHERE id = ?";
-        jdbcTemplate.update(sql, shelfNameJson  , id);
-    }
+
+
 
     public DistributionWithConnectionAndUseId getDistributionWithConnectionAndUseId(long id){
         DistributionWithConnectionAndUseId distributions = null;

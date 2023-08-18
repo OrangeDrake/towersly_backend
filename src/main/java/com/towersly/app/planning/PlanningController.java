@@ -1,5 +1,6 @@
 package com.towersly.app.planning;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.towersly.app.library.LibraryService;
 import com.towersly.app.library.model.Shelf;
 import com.towersly.app.library.model.ShelfContainingWorks;
@@ -32,9 +33,13 @@ public class PlanningController {
 //    }
 
     @GetMapping(value = "/addconnectedshelf")
-    public boolean addConnectedShelf(@RequestParam long distributionId, @RequestParam  String shelfName){
+    public JsonNode addConnectedShelf(@RequestParam long distributionId, @RequestParam  String shelfName){
         return planningService.addConnectedShelf(distributionId, shelfName);
     }
 
+    @GetMapping(value = "/removeconnectedshelf")
+    public void removeConnectedShelf(@RequestParam long distributionId, @RequestParam  String shelfName){
+        planningService.removeConnectedShelf(distributionId, shelfName);
+    }
 
 }
