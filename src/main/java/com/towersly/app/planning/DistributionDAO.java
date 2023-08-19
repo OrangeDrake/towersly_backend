@@ -104,15 +104,17 @@ public class DistributionDAO {
 //        jdbcTemplate.update(sql, shelfNameJson  , id);
 //    }
 
-        public void deleteConnectedShelf(Long id, String shelfNameJson) {
+    public void deleteConnectedShelf(Long id, String shelfName) {
         String sql = "UPDATE Distribution SET connection = jsonb_set(connection, '{shelves_names}',(connection->'shelves_names') - ?, true) WHERE id = ?";
-        jdbcTemplate.update(sql, shelfNameJson  , id);
+        jdbcTemplate.update(sql, shelfName, id);
     }
 
+    public void updateConnectingType(Long id, String type) {
+        String sql = "UPDATE distribution SET connection = jsonb_set(connection, '{type}',cast(? as jsonb), true) WHERE id = ?";
+        jdbcTemplate.update(sql, type, id);
+    }
 
-
-
-    public DistributionWithConnectionAndUseId getDistributionWithConnectionAndUseId(long id){
+    public DistributionWithConnectionAndUseId getDistributionWithConnectionAndUseId(long id) {
         DistributionWithConnectionAndUseId distributions = null;
         String sql = "select connection, user_id from public.distribution where id = ?";
 
@@ -137,11 +139,8 @@ public class DistributionDAO {
     }
 
     public void createConnection(Long id, String connectionText) {
-        String sql = "UPDATE Distribution SET connection = cast(? as json) WHERE id = ?";
-        jdbcTemplate.update(sql, connectionText  , id);
+        String sql = "UPDATE Distribution SET connection = cast(? as jsonb) WHERE id = ?";
+        jdbcTemplate.update(sql, connectionText, id);
     }
-
-
-//
 }
 

@@ -66,7 +66,7 @@ public class PlanningService {
 
         if(userId != userIdFromDistribution){
             log.warn("User: " + userId + "| Trying to write to Distribution id: " + distributionId + ", User: " + userIdFromDistribution);
-            log.warn("User: " + userId + "| Connection to shelf: " + shelfName + " not  creted");
+            log.warn("User: " + userId + "| Connection to shelf: " + shelfName + " in distribution: " + distributionId + " was not creted");
             return null;
         }
 
@@ -79,12 +79,12 @@ public class PlanningService {
                 connection =  mapper.readTree(connectionText);
             } catch (JsonProcessingException e) {
                 log.warn("User: " + userId + "| JsonProcessingException");
-                log.warn("User: " + userId + "| Connection to shelf: " + shelfName + " not  creted");
+                log.warn("User: " + userId + "| Connection to shelf: " + shelfName + " in distribution: " + distributionId + " was not creted");
                 return null;
             }
 
             distributionDAO.createConnection(distributionId, connectionText);
-            log.info("User: " + userId + "| Connection to shelf: " + shelfName + " creted");
+            log.info("User: " + userId + "| Connection to shelf: " + shelfName + " in distribution: " + distributionId + " was creted");
             return connection;
         }
 
@@ -99,8 +99,8 @@ public class PlanningService {
                 for (JsonNode shelf_name : shelves_names){
                     numberofConections++;
                     if(shelf_name.asText().equals(shelfName)){
-                        log.warn("User: " + userId + "| Shlelve name: " + shelfName + " is alredy connected ");
-                        log.warn("User: " + userId + "| Connection to shelf: " + shelfName + " not  creted");
+                        log.warn("User: " + userId + "| Shlelve name: " + shelfName + " is alredy connected in distribution: " + distributionId );
+                        log.warn("User: " + userId + "| Connection to shelf: " + shelfName + " in distribution: " + distributionId + "was not  creted");
                         return null;
                     }
                 }
@@ -113,14 +113,14 @@ public class PlanningService {
             }
         }
 
-        if(typeOfconection == null || numberofConections > 0){
+        if(typeOfconection == null && numberofConections > 0){
             ObjectNode connectionObject = (ObjectNode ) connection;
             connectionObject.put("type", "concat");
         }
 
         distributionDAO.createConnection(distributionId, connection.toString());
 
-        log.info("User: " + userId + "| Connection to shelf: " + shelfName + " creted");
+        log.info("User: " + userId + "| Connection to shelf: " + shelfName + " in distribution: " + distributionId + " was creted");
         return connection;
 
 //        String shelfNameJson ="\"" + shelfName + "\"";
@@ -139,12 +139,27 @@ public class PlanningService {
 
         if(userId != userIdFromDistribution){
             log.warn("User: " + userId + "| Trying to remove in Distribution id: " + distributionId + ", User: " + userIdFromDistribution);
-            log.warn("User: " + userId + "| Connection to shelf: " + shelfName + " not  removed");
+            log.warn("User: " + userId + "| Connection to shelf: " + shelfName + " in distribution: " + distributionId + " not  removed");
             return;
         }
 
-        String shelfNameJson = "\"" + shelfName + "\"";
         distributionDAO.deleteConnectedShelf(distributionId, shelfName);
+        log.info("User: " + userId + "| Connection to shelf: " + shelfName + " in distribution: " + distributionId + " removed");
+    }
+
+    public void changeConnectingType(Long distributionId, String type){
+        int userId  = userService.getUserId();
+        DistributionWithConnectionAndUseId distribution = distributionDAO.getDistributionWithConnectionAndUseId(distributionId);
+        int userIdFromDistribution = distribution.getUserId();
+
+        if(userId != userIdFromDistribution){
+            log.warn("User: " + userId + "| Trying to remove in Distribution id: " + distributionId + ", User: " + userIdFromDistribution);
+            log.warn("User: " + userId + "| Connecting type was not changed to: " + type + " in distribution: " + distributionId);
+            return;
+        }
+
+        distributionDAO.updateConnectingType(distributionId, "\"" + type + "\"");
+        log.info("User: " + userId + "| Connecting type was changed to: " + type + " in distribution: " + distributionId);
     }
 
 }
