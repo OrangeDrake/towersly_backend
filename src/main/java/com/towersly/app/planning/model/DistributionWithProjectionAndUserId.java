@@ -8,8 +8,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class DistributionWithConnectionAndUseId {
+public class DistributionWithProjectionAndUserId {
 
-    private JsonNode connection;
+    private JsonNode projection;
     private int userId;
 }

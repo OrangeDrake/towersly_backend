@@ -6,7 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.towersly.app.planning.model.Distribution;
-import com.towersly.app.planning.model.DistributionWithConnectionAndUseId;
+import com.towersly.app.planning.model.DistributionWithConnectionAndUserId;
+import com.towersly.app.planning.model.DistributionWithProjectionAndUserId;
 import com.towersly.app.profile.UserService;
 import com.towersly.app.profile.model.UserWithIdAndNextDistributionRank;
 import lombok.AllArgsConstructor;
@@ -25,8 +26,8 @@ public class PlanningService {
     final private ObjectMapper mapper = new ObjectMapper();
 
     public Distribution addDistribution(Distribution distribution) {
-        UserWithIdAndNextDistributionRank userWithIdAndNextDistributionRank  = userService.getUserWithIdAndNextDistributionRank();
-        if(userWithIdAndNextDistributionRank == null){
+        UserWithIdAndNextDistributionRank userWithIdAndNextDistributionRank = userService.getUserWithIdAndNextDistributionRank();
+        if (userWithIdAndNextDistributionRank == null) {
             log.warn("Distribution: " + distribution.getName() + " not  creted");
             return null;
         }
@@ -37,7 +38,7 @@ public class PlanningService {
         distribution.setUserId(userId);
         distribution.setActive(true);
         Distribution createdDistribution = distributionDAO.create(distribution);
-        if(createdDistribution == null){
+        if (createdDistribution == null) {
             log.warn("User: " + userId + "| Distribution: " + distribution.getName() + " not  creted");
             return null;
         }
@@ -45,45 +46,45 @@ public class PlanningService {
         return createdDistribution;
     }
 
-    public List<Distribution> getAllDistributions(){
-        int userId  = userService.getUserId();
-        if(userId == 0){
+    public List<Distribution> getAllDistributions() {
+        int userId = userService.getUserId();
+        if (userId == 0) {
             log.warn("User: " + userId + "|Shelves not received");
             return null;
         }
         List<Distribution> distributions = distributionDAO.readAllDistributions(userId);
-        if(distributions == null){
+        if (distributions == null) {
             log.warn("User: " + userId + "| Distributions not received");
             return null;
         }
         return distributions;
     }
 
-    public JsonNode addConnectedShelf(Long distributionId, String shelfName){
-        int userId  = userService.getUserId();
-        DistributionWithConnectionAndUseId distribution = distributionDAO.getDistributionWithConnectionAndUseId(distributionId);
+    public JsonNode addConnectedShelf(Long distributionId, String shelfName) {
+        int userId = userService.getUserId();
+        DistributionWithConnectionAndUserId distribution = distributionDAO.getDistributionWithConnectionAndUserId(distributionId);
         int userIdFromDistribution = distribution.getUserId();
 
-        if(userId != userIdFromDistribution){
+        if (userId != userIdFromDistribution) {
             log.warn("User: " + userId + "| Trying to write to Distribution id: " + distributionId + ", User: " + userIdFromDistribution);
             log.warn("User: " + userId + "| Connection to shelf: " + shelfName + " in distribution: " + distributionId + " was not creted");
             return null;
         }
 
         JsonNode connection = distribution.getConnection();
-        if(connection == null){
-            String connectionText = "{\n" +
-                    "    \"shelves_names\" : [\""+ shelfName + "\"]\n" +
+        if (connection == null) {
+            String connectionJson = "{\n" +
+                    "    \"shelves_names\" : [\"" + shelfName + "\"]\n" +
                     "}";
             try {
-                connection =  mapper.readTree(connectionText);
+                connection = mapper.readTree(connectionJson);
             } catch (JsonProcessingException e) {
                 log.warn("User: " + userId + "| JsonProcessingException");
                 log.warn("User: " + userId + "| Connection to shelf: " + shelfName + " in distribution: " + distributionId + " was not creted");
                 return null;
             }
 
-            distributionDAO.createConnection(distributionId, connectionText);
+            distributionDAO.createConnection(distributionId, connectionJson);
             log.info("User: " + userId + "| Connection to shelf: " + shelfName + " in distribution: " + distributionId + " was creted");
             return connection;
         }
@@ -92,29 +93,27 @@ public class PlanningService {
         int numberofConections = 0;
         String typeOfconection = null;
 
-        while (fields.hasNext()){
+        while (fields.hasNext()) {
             var field = fields.next();
-            if (field.getKey().equals("shelves_names")){
+            if (field.getKey().equals("shelves_names")) {
                 var shelves_names = field.getValue();
-                for (JsonNode shelf_name : shelves_names){
+                for (JsonNode shelf_name : shelves_names) {
                     numberofConections++;
-                    if(shelf_name.asText().equals(shelfName)){
-                        log.warn("User: " + userId + "| Shlelve name: " + shelfName + " is alredy connected in distribution: " + distributionId );
+                    if (shelf_name.asText().equals(shelfName)) {
+                        log.warn("User: " + userId + "| Shlelve name: " + shelfName + " is alredy connected in distribution: " + distributionId);
                         log.warn("User: " + userId + "| Connection to shelf: " + shelfName + " in distribution: " + distributionId + "was not  creted");
                         return null;
                     }
                 }
-                var shelvesNamesArray =  (ArrayNode) shelves_names;
+                var shelvesNamesArray = (ArrayNode) shelves_names;
                 shelvesNamesArray.add(shelfName);
-            }
-
-            else if (field.getKey().equals("type")){
+            } else if (field.getKey().equals("type")) {
                 typeOfconection = field.getValue().asText();
             }
         }
 
-        if(typeOfconection == null && numberofConections > 0){
-            ObjectNode connectionObject = (ObjectNode ) connection;
+        if (typeOfconection == null && numberofConections > 0) {
+            ObjectNode connectionObject = (ObjectNode) connection;
             connectionObject.put("type", "concat");
         }
 
@@ -122,22 +121,14 @@ public class PlanningService {
 
         log.info("User: " + userId + "| Connection to shelf: " + shelfName + " in distribution: " + distributionId + " was creted");
         return connection;
-
-//        String shelfNameJson ="\"" + shelfName + "\"";
-//        if(typeOfconection !=null || numberofConections == 0){
-//        distributionDAO.addConnectedShelfwithType(distributionId,shelfNameJson);}
-//        else{ //pokud je typ nastaven z minula nebo connection byly po predchozim mazani prazdne a ted je jedna o prvni conncetion nebude treba type vytvaret
-//            distributionDAO.addConnectedShelfwithType(distributionId,shelfNameJson);
-//        }
-//        log.info("User: " + userId + "| Shlelve name: " + shelfName + " created ");
-//        return true;
     }
-    public void removeConnectedShelf(Long distributionId, String shelfName){
-        int userId  = userService.getUserId();
-        DistributionWithConnectionAndUseId distribution = distributionDAO.getDistributionWithConnectionAndUseId(distributionId);
+
+    public void removeConnectedShelf(Long distributionId, String shelfName) {
+        int userId = userService.getUserId();
+        DistributionWithConnectionAndUserId distribution = distributionDAO.getDistributionWithConnectionAndUserId(distributionId);
         int userIdFromDistribution = distribution.getUserId();
 
-        if(userId != userIdFromDistribution){
+        if (userId != userIdFromDistribution) {
             log.warn("User: " + userId + "| Trying to remove in Distribution id: " + distributionId + ", User: " + userIdFromDistribution);
             log.warn("User: " + userId + "| Connection to shelf: " + shelfName + " in distribution: " + distributionId + " not  removed");
             return;
@@ -147,19 +138,85 @@ public class PlanningService {
         log.info("User: " + userId + "| Connection to shelf: " + shelfName + " in distribution: " + distributionId + " removed");
     }
 
-    public void changeConnectingType(Long distributionId, String type){
-        int userId  = userService.getUserId();
-        DistributionWithConnectionAndUseId distribution = distributionDAO.getDistributionWithConnectionAndUseId(distributionId);
+    public void changeConnectingType(Long distributionId, String type) {
+        int userId = userService.getUserId();
+        DistributionWithConnectionAndUserId distribution = distributionDAO.getDistributionWithConnectionAndUserId(distributionId);
         int userIdFromDistribution = distribution.getUserId();
 
-        if(userId != userIdFromDistribution){
+        if (userId != userIdFromDistribution) {
             log.warn("User: " + userId + "| Trying to remove in Distribution id: " + distributionId + ", User: " + userIdFromDistribution);
             log.warn("User: " + userId + "| Connecting type was not changed to: " + type + " in distribution: " + distributionId);
             return;
         }
 
-        distributionDAO.updateConnectingType(distributionId, "\"" + type + "\"");
+        String typeJson = "\"" + type + "\"";
+        distributionDAO.updateConnectingType(distributionId, typeJson);
         log.info("User: " + userId + "| Connecting type was changed to: " + type + " in distribution: " + distributionId);
     }
 
+
+    public JsonNode addRule(Long distributionId, JsonNode nRule) {
+        int userId = userService.getUserId();
+        DistributionWithProjectionAndUserId distribution = distributionDAO.getDistributionWithProjectionAndUserId(distributionId);
+        int userIdFromDistribution = distribution.getUserId();
+
+//        JsonNode nRule = null;
+//
+//        try {
+//            nRule = mapper.readTree(ruleJson);
+//        } catch (JsonProcessingException e) {
+//            log.warn("User: " + userId + "| New Rule JsonProcessingException");
+//            log.warn("User: " + userId + "| Rule for distibution: " + distributionId + " was not creted");
+//            return null;
+//        }
+
+        var nRuleFields = nRule.fields();
+
+        String nRuleName = "no name";
+
+        while (nRuleFields.hasNext()) {
+            var nRuleField = nRuleFields.next();
+            if (nRuleField.getKey().equals("name")) {
+                nRuleName = nRuleField.getValue().asText();
+                break;
+            }
+        }
+
+        if (userId != userIdFromDistribution) {
+            log.warn("User: " + userId + "| Trying to write to Distribution id: " + distributionId + ", User: " + userIdFromDistribution);
+            log.warn("User: " + userId + "| Connection to shelf: " + nRuleName + " in distribution: " + distributionId + " was not creted");
+            return null;
+        }
+
+
+        JsonNode projection = distribution.getProjection();
+        if (projection == null) {
+            String projectionJson = "{\n" +
+                    "    \"rules\" : []\n" +
+                    "}";
+
+            try {
+                projection = mapper.readTree(projectionJson);
+            } catch (JsonProcessingException e) {
+                log.warn("User: " + userId + "| Create Projection JsonProcessingException");
+                log.warn("User: " + userId + "| Rule for distibution: " + distributionId + " was not creted");
+                return null;
+            }
+        }
+
+
+        var projectionFields = projection.fields();
+        while (projectionFields.hasNext()) {
+            var projectionField = projectionFields.next();
+            if (projectionField.getKey().equals("rules")) {
+                var rulesArray = (ArrayNode) projectionField.getValue();
+                rulesArray.add(nRule);
+                break;
+            }
+        }
+
+        distributionDAO.createProjection(distributionId, projection.toString());
+        return projection;
+
+    }
 }

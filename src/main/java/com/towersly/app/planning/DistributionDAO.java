@@ -4,7 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.towersly.app.planning.model.Distribution;
-import com.towersly.app.planning.model.DistributionWithConnectionAndUseId;
+import com.towersly.app.planning.model.DistributionWithConnectionAndUserId;
+import com.towersly.app.planning.model.DistributionWithProjectionAndUserId;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -114,33 +115,60 @@ public class DistributionDAO {
         jdbcTemplate.update(sql, type, id);
     }
 
-    public DistributionWithConnectionAndUseId getDistributionWithConnectionAndUseId(long id) {
-        DistributionWithConnectionAndUseId distributions = null;
+    public DistributionWithConnectionAndUserId getDistributionWithConnectionAndUserId(long id) {
+        DistributionWithConnectionAndUserId distributions = null;
         String sql = "select connection, user_id from public.distribution where id = ?";
 
         distributions = jdbcTemplate.queryForObject(sql, new Object[]{id}, ((rs, rowNum) -> {
 
             JsonNode connection = null;
-            String connectionText = rs.getString("connection");
+            String connectionJson = rs.getString("connection");
             try {
-                if (connectionText != null) {
-                    connection = mapper.readTree(connectionText);
+                if (connectionJson != null) {
+                    connection = mapper.readTree(connectionJson);
                 }
             } catch (JsonProcessingException e) {
                 log.error("Distribution: " + id + "| Distrubution Connection json parsing error");
                 return null;
             }
 
-            return new DistributionWithConnectionAndUseId(connection, rs.getInt("user_id"));
+            return new DistributionWithConnectionAndUserId(connection, rs.getInt("user_id"));
 
         }));
         return distributions;
-
     }
 
-    public void createConnection(Long id, String connectionText) {
+    public void createConnection(Long id, String connectionJson) {
         String sql = "UPDATE Distribution SET connection = cast(? as jsonb) WHERE id = ?";
-        jdbcTemplate.update(sql, connectionText, id);
+        jdbcTemplate.update(sql, connectionJson, id);
+    }
+
+    public DistributionWithProjectionAndUserId getDistributionWithProjectionAndUserId(Long id) {
+        DistributionWithProjectionAndUserId distributions = null;
+        String sql = "select projection, user_id from public.distribution where id = ?";
+
+        distributions = jdbcTemplate.queryForObject(sql, new Object[]{id}, ((rs, rowNum) -> {
+
+            JsonNode projection = null;
+            String projectionJson = rs.getString("projection");
+            try {
+                if (projectionJson != null) {
+                    projection = mapper.readTree(projectionJson);
+                }
+            } catch (JsonProcessingException e) {
+                log.error("Distribution: " + id + "| Distrubution Projection json parsing error");
+                return null;
+            }
+
+            return new DistributionWithProjectionAndUserId(projection, rs.getInt("user_id"));
+
+        }));
+        return distributions;
+    }
+
+    public void createProjection(Long id, String projectionJson) {
+        String sql = "UPDATE Distribution SET projection = cast(? as jsonb) WHERE id = ?";
+        jdbcTemplate.update(sql, projectionJson, id);
     }
 }
 

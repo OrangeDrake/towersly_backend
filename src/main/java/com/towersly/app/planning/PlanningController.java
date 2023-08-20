@@ -43,6 +43,12 @@ public class PlanningController {
         planningService.changeConnectingType(distributionId, type);
     }
 
+    @PostMapping(value = "/addRule")
+    public JsonNode addRule(@RequestParam long distributionId, @RequestBody JsonNode rule ){
+        return planningService.addRule(distributionId, rule);
+    }
+
+
 
 
 
