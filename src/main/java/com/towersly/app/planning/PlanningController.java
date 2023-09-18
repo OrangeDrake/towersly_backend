@@ -23,11 +23,6 @@ public class PlanningController {
         return planningService.addDistribution(distribution);
     }
 
-//    @GetMapping(value = "/addconnectedshelf")
-//    public void addConnectedShelf(@RequestParam long distributionId, @RequestParam  String shelfName){
-//        planningService.addConnectedShelf(distributionId, shelfName);
-//    }
-
     @GetMapping(value = "/addconnectedshelf")
     public JsonNode addConnectedShelf(@RequestParam long distributionId, @RequestParam  String shelfName){
         return planningService.addConnectedShelf(distributionId, shelfName);
@@ -43,7 +38,7 @@ public class PlanningController {
         planningService.changeConnectingType(distributionId, type);
     }
 
-    @PostMapping(value = "/addRule")
+    @PostMapping(value = "/addrule")
     public JsonNode addRule(@RequestParam long distributionId, @RequestBody JsonNode rule ){
         return planningService.addRule(distributionId, rule);
     }

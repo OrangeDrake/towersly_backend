@@ -129,7 +129,7 @@ public class ShelfDAO {
 
     public List<ShelfContainingWorks> readAllShelves(int userId) {
 
-        String sql = "select s.id, s.name, s.is_active, s.rank, w.id as w_id, w.name as w_name, w.is_completed as w_is_completed, w.description as w_description, w.rank as w_rank, w.expected_Time as w_expected_Time, w.actual_Time as w_actual_time from public.shelf s left join public.work w on w.shelf_id = s.id where s.user_id = ?";
+        String sql = "select s.id, s.name, s.is_active, s.rank, w.id as w_id, w.name as w_name, w.is_completed as w_is_completed, w.description as w_description, w.rank as w_rank, w.expected_Time as w_expected_Time, w.actual_Time as w_actual_time from public.shelf s left join public.work w on w.shelf_id = s.id where s.user_id = ? order by s.id";
 
         List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, new Object[]{userId});
 
