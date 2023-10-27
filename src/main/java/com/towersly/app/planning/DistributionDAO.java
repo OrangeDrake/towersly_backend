@@ -41,18 +41,18 @@ public class DistributionDAO {
         };
 
         //neni nutny novy connection i distribution je vzdy null
-        String connectionText = null;
+        String connectionJson = null;
         JsonNode connection = distribution.getConnection();
         if (connection != null) {
-            connectionText = connection.toString();
+            connectionJson = connection.toString();
         }
-        String projectionText = null;
+        String projectionJson = null;
         JsonNode projection = distribution.getProjection();
         if (projection != null) {
-            projectionText = projection.toString();
+            projectionJson = projection.toString();
         }
 
-        var psc = pscf.newPreparedStatementCreator(Arrays.asList(distribution.getName(), distribution.isActive(), distribution.getRank(), connectionText, projectionText, distribution.getUserId()));
+        var psc = pscf.newPreparedStatementCreator(Arrays.asList(distribution.getName(), distribution.isActive(), distribution.getRank(), connectionJson, projectionJson, distribution.getUserId()));
         jdbcTemplate.update(psc, generatedKeyHolder);
         var id = Objects.requireNonNull(generatedKeyHolder.getKey()).longValue();
         distribution.setId(id);
@@ -66,11 +66,11 @@ public class DistributionDAO {
 
         distributions = jdbcTemplate.query(sql, new Object[]{userId}, ((rs, rowNum) -> {
             JsonNode connection = null;
-            String connectionText = rs.getString("connection");
+            String connectionJSon = rs.getString("connection");
 
             try {
-                if (connectionText != null) {
-                    connection = mapper.readTree(connectionText);
+                if (connectionJSon != null) {
+                    connection = mapper.readTree(connectionJSon);
                 }
             } catch (JsonProcessingException e) {
                 log.error("User: " + userId + "| Distrubution Connection json parsing error");
@@ -78,11 +78,11 @@ public class DistributionDAO {
             }
 
             JsonNode projection = null;
-            String projectionText = rs.getString("projection");
+            String projectionJson = rs.getString("projection");
 
             try {
-                if (projectionText != null) {
-                    projection = mapper.readTree(projectionText);
+                if (projectionJson != null) {
+                    projection = mapper.readTree(projectionJson);
                 }
             } catch (JsonProcessingException e) {
                 log.error("User: " + userId + "| Distrubution Projection json parsing error");

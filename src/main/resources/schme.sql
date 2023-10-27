@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS public.user
     next_shelf_rank integer NOT NULL
 );
 
+ALTER TABLE public.user
+ADD COLUMN tracking jsonb;
 
 CREATE TABLE IF NOT EXISTS public.work
 (
