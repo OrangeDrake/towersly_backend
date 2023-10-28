@@ -77,10 +77,12 @@ public class UserDAO {
             JsonNode tracking = null;
             String trackingJson = rs.getString("tracking");
 
+            if (trackingJson == null) {
+                return mapper.createObjectNode();
+            }
+
             try {
-                if (trackingJson != null) {
                     tracking = mapper.readTree(trackingJson);
-                }
             } catch (JsonProcessingException e) {
                 log.error("User: " + id + "| Tracking json parsing error");
                 return null;
