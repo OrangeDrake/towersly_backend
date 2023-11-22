@@ -32,11 +32,16 @@ public class WorkDAO {
                 setGeneratedKeysColumnNames("id");
             }
         };
-        log.info("Debug: " + work.toString());
+        //log.info("Debug: " + work.toString());
         var psc = pscf.newPreparedStatementCreator(Arrays.asList(work.getName(), work.isCompleted(), work.getRank(), work.getDescription(), work.getExpectedTime(), work.getActualTime(), work.getShelfId()));
         jdbcTemplate.update(psc, generatedKeyHolder);
         var id = Objects.requireNonNull(generatedKeyHolder.getKey()).longValue();
         work.setId(id);
         return work;
+    }
+
+    public void updateActualTime(long workId, int durationInSeconds) {
+        String sql = "update public.work set actual_time = actual_time + ? where id = ?";
+        jdbcTemplate.update(sql, durationInSeconds, workId);
     }
 }

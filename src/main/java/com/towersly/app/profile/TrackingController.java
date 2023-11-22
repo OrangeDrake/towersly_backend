@@ -9,22 +9,22 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(path = "/profile")
 @Slf4j
 @AllArgsConstructor
-public class ProfileController {
+public class TrackingController {
 
-    private UserService userService;
+    private TrackingService trackingService;
 
     @PostMapping(value = "/startTracking")
-    public void startTracking(@RequestBody JsonNode tracking ){
-        userService.startTracking(tracking);
+    public void startTracking(@RequestBody JsonNode tracking){
+        trackingService.startTracking(tracking);
     }
 
-    @GetMapping(value = "/stopTracking")
-    public void stopTracking(){
-        userService.stopTracking();
+    @PostMapping(value = "/stopTracking")
+    public void stopTracking(@RequestBody JsonNode stopTime){
+        trackingService.stopTracking(stopTime);
     }
 
     @GetMapping(value = "/tracking")
     public JsonNode getTracking(){
-        return userService.getTracking();
+        return trackingService.getTracking();
     }
 }

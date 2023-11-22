@@ -1,3 +1,11 @@
+CREATE TABLE IF NOT EXISTS public.user
+(
+    id serial PRIMARY KEY,
+    name character varying(255) UNIQUE NOT NULL CHECK (name <> ''),
+    next_distribution_rank integer NOT NULL,
+    next_shelf_rank integer NOT NULL
+);
+
 
 CREATE TABLE IF NOT EXISTS public.shelf
 (
@@ -8,15 +16,6 @@ CREATE TABLE IF NOT EXISTS public.shelf
     next_work_rank integer NOT NULL,
     user_id int NOT NULL REFERENCES public.user(id),
     UNIQUE (user_id, name)
-);
-
-
-CREATE TABLE IF NOT EXISTS public.user
-(
-    id serial PRIMARY KEY,
-    name character varying(255) UNIQUE NOT NULL CHECK (name <> ''),
-    next_distribution_rank integer NOT NULL,
-    next_shelf_rank integer NOT NULL
 );
 
 ALTER TABLE public.user

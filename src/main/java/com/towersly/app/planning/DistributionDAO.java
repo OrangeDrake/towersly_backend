@@ -64,7 +64,7 @@ public class DistributionDAO {
         List<Distribution> distributions = null;
         String sql = "select id, is_active, name, rank, connection, projection from public.distribution where user_id = ?";
 
-        distributions = jdbcTemplate.query(sql, new Object[]{userId}, ((rs, rowNum) -> {
+        distributions = jdbcTemplate.query(sql, ((rs, rowNum) -> {
             JsonNode connection = null;
             String connectionJSon = rs.getString("connection");
 
@@ -91,7 +91,7 @@ public class DistributionDAO {
 
             return new Distribution(rs.getLong("id"), rs.getBoolean("is_active"), rs.getString("name"), rs.getInt("rank"), connection, projection, 0);
 
-        }));
+        }), userId);
         return distributions;
     }
 
@@ -138,11 +138,6 @@ public class DistributionDAO {
         return distributions;
     }
 
-    public void createConnection(Long id, String connectionJson) {
-        String sql = "UPDATE Distribution SET connection = cast(? as jsonb) WHERE id = ?";
-        jdbcTemplate.update(sql, connectionJson, id);
-    }
-
     public DistributionWithProjectionAndUserId getDistributionWithProjectionAndUserId(Long id) {
         DistributionWithProjectionAndUserId distributions = null;
         String sql = "select projection, user_id from public.distribution where id = ?";
@@ -166,9 +161,13 @@ public class DistributionDAO {
         return distributions;
     }
 
+    public void createConnection(Long id, String connectionJson) {
+        String sql = "UPDATE Distribution SET connection = cast(? as jsonb) WHERE id = ?";
+        jdbcTemplate.update(sql, connectionJson, id);
+    }
+
     public void createProjection(Long id, String projectionJson) {
         String sql = "UPDATE Distribution SET projection = cast(? as jsonb) WHERE id = ?";
         jdbcTemplate.update(sql, projectionJson, id);
     }
 }
-

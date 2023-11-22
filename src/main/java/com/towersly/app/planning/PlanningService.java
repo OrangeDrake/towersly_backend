@@ -184,7 +184,7 @@ public class PlanningService {
 
         if (userId != userIdFromDistribution) {
             log.warn("User: " + userId + "| Trying to write to Distribution id: " + distributionId + ", User: " + userIdFromDistribution);
-            log.warn("User: " + userId + "| Connection to shelf: " + nRuleName + " in distribution: " + distributionId + " was not creted");
+            log.warn("User: " + userId + "| Rule: " + nRuleName + " in distribution: " + distributionId + " was not creted");
             return null;
         }
 
@@ -199,11 +199,10 @@ public class PlanningService {
                 projection = mapper.readTree(projectionJson);
             } catch (JsonProcessingException e) {
                 log.warn("User: " + userId + "| Create Projection JsonProcessingException");
-                log.warn("User: " + userId + "| Rule for distibution: " + distributionId + " was not creted");
+                log.warn("User: " + userId + "| Rule: " + nRuleName + " in distribution: " + distributionId + " was not creted");
                 return null;
             }
         }
-
 
         var projectionFields = projection.fields();
         while (projectionFields.hasNext()) {
@@ -211,6 +210,7 @@ public class PlanningService {
             if (projectionField.getKey().equals("rules")) {
                 var rulesArray = (ArrayNode) projectionField.getValue();
                 rulesArray.add(nRule);
+                log.info("User: " + userId + "| Rule: " + nRuleName + " in distribution: " + distributionId + " was creted");
                 break;
             }
         }

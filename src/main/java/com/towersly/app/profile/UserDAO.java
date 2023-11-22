@@ -65,7 +65,7 @@ public class UserDAO {
         jdbcTemplate.update(sql, tracking, id);
     }
 
-    public void stopTracking(int id) {
+    public void updateTrackingToNUll(int id) {
         String sql = "UPDATE public.user SET tracking = null WHERE id = ?";
         jdbcTemplate.update(sql, id);
     }

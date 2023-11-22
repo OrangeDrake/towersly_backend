@@ -23,33 +23,6 @@ public class ShelfDAO {
 
     final private GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
 
-// for more keys
-//    public void create(Shelf shelf) {
-//        String sql = "insert into public.shelf (name, is_active, next_work_rank, rank, user_id) values (?, true, 0, ?, ?) ";
-//
-//        int rowsAffected = jdbcTemplate.update(conn -> {
-//
-//            PreparedStatement preparedStatement = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-//
-//            preparedStatement.setString(1, shelf.getName());
-//            preparedStatement.setInt(2, shelf.getRank());
-//            preparedStatement.setInt(3, shelf.getUser_id());
-//
-//            return preparedStatement;
-//
-//        }, generatedKeyHolder);
-//
-//
-//        // Get auto-incremented ID
-//        long id = (long) generatedKeyHolder.getKeys().get("id");
-//
-//        log.info("rowsAffected = {}, id={}", rowsAffected, id);
-//
-//        String name = (String) generatedKeyHolder.getKeys().get("name");
-//        log.info("name: " + name);
-//    }
-
-
     public ShelfContainingWorks create(Shelf shelf) {
 
         String sql = "insert into public.shelf (name, is_active, next_work_rank, rank, user_id) values (?, ?, 0, ?, ?)";
@@ -72,60 +45,13 @@ public class ShelfDAO {
         String sql = "SELECT next_work_rank, user_id from shelf where id = ?";
         ShelfWithIdAndNextWorkRankAndUserId shelf = null;
         try {
-            shelf = jdbcTemplate.queryForObject(sql, new Object[]{id}, (rs, rownumber) ->
-                    new ShelfWithIdAndNextWorkRankAndUserId(id, rs.getInt("next_work_rank"), rs.getInt("user_id")));
+            shelf = jdbcTemplate.queryForObject(sql, (rs, rownumber) ->
+                    new ShelfWithIdAndNextWorkRankAndUserId(id, rs.getInt("next_work_rank"), rs.getInt("user_id")), id);
         } catch (DataAccessException ex) {
             log.error("Shelf not found: " + id);
         }
         return shelf;
     }
-
-//    public List<Shelf> readAllShelves(int userId) {
-//
-//        String sql = "SELECT * from shelf where user_id = ?";
-//
-//        return jdbcTemplate.query(
-//                sql, new Object[]{userId},
-//                (rs, rowNum) ->
-//                        new Shelf(
-//                                rs.getLong("id"),
-//                                rs.getString("name"),
-//                                rs.getBoolean("is_active"),
-//                                rs.getInt("rank"),
-//                                rs.getInt("next_work_rank"),
-//                                0
-//                        )
-//        );
-//
-//    }
-
-//    public List<Shelf> readAllShelves(int userId) {
-//
-//        String sql = "SELECT * from shelf where user_id = ?";
-//
-//        List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, new Object[]{userId});
-//
-//        List<Shelf> shelves = new LinkedList<>();
-//        long prevousId = -1;
-//        Shelf currentShelf = null;
-//
-//        for (Map row : rows) {
-//            long id = (long) row.get("id");
-//            if (id != prevousId) {
-//                if (currentShelf != null) {
-//                    shelves.add(currentShelf);
-//                }
-//                String name = (String) row.get("name");
-//                boolean isActive = (boolean) row.get("is_active");
-//                int rank = (int) row.get("rank");
-//                int nextWorkRank = (int) row.get("next_work_rank");
-//                currentShelf = new Shelf(id, name, isActive, rank, nextWorkRank, 0);
-//                shelves.add(currentShelf);
-//                prevousId = id;
-//
-//            }
-//        }
-//        return shelves;
 
     public List<ShelfContainingWorks> readAllShelves(int userId) {
 
@@ -167,5 +93,6 @@ public class ShelfDAO {
         String sql = "update public.shelf set next_work_rank = ? WHERE id = ?";
         jdbcTemplate.update(sql, nextWorkRank, id);
     }
+
 }
 

@@ -14,11 +14,16 @@ spring:
     username: postgres
     password: postgre
 
+#  main:
+#    allow-circular-references: true
+
 jwt:
   auth:
     converter:
       resource-id: t_client
       principle-attribute: preferred_username
+
+
 
 #logging:
 #  file:

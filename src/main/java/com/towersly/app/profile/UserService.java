@@ -1,6 +1,5 @@
 package com.towersly.app.profile;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.towersly.app.profile.model.UserWithIdAndNextDistributionRank;
 import com.towersly.app.profile.model.UserWithIdAndNextShelfRank;
 import lombok.AllArgsConstructor;
@@ -46,26 +45,11 @@ public class UserService {
         return userWithIdAndNextDistributionRank;
     }
 
-
     public void updateNextShelfRank(int id, int nextShelfRank) {
         userDAO.updateNextShelfRank(id, nextShelfRank);
     }
 
     public void updateNextDistributionRank(int id, int nextDistributionRank) {
         userDAO.updateNextDistributionfRank(id, nextDistributionRank);
-    }
-    public void startTracking(JsonNode tracking) {
-        int id = getUserId();
-        userDAO.startTracking(id, tracking.toString());
-    }
-
-    public void stopTracking() {
-        int id = getUserId();
-        userDAO.stopTracking(id);
-    }
-
-    public JsonNode getTracking() {
-        int id = getUserId();
-        return userDAO.readTracking(id);
     }
 }
