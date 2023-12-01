@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 
 import java.sql.Types;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Component
@@ -40,8 +42,14 @@ public class WorkDAO {
         return work;
     }
 
-    public void updateActualTime(long workId, int durationInSeconds, long shelfId) {
-        String sql = "update public.work set actual_time = actual_time + ? where (id = ? and shelf_id = ?)";
-        jdbcTemplate.update(sql, durationInSeconds, workId, shelfId);
+    public int updateActualTime(long workId, int durationInSeconds, long shelfId) {
+        String sql = "update public.work set actual_time = actual_time + ? where (id = ? and shelf_id = ?) returning actual_time";
+        List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, durationInSeconds, workId, shelfId);
+
+        for (Map row : rows) {
+            return (int) row.get("actual_time");
+
+        }
+        return 0;
     }
 }

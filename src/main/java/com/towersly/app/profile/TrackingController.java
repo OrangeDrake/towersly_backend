@@ -19,8 +19,8 @@ public class TrackingController {
     }
 
     @PostMapping(value = "/stopTracking")
-    public void stopTracking(@RequestBody JsonNode stopTime){
-        trackingService.stopTracking(stopTime);
+    public int stopTracking(@RequestBody JsonNode stopTime){
+        return trackingService.stopTracking(stopTime);
     }
 
     @GetMapping(value = "/tracking")

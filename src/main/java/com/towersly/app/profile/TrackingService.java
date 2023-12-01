@@ -21,7 +21,7 @@ public class TrackingService {
         userDAO.startTracking(userId, tracking.toString());
     }
 
-    public void stopTracking(JsonNode stopTime) {
+    public int stopTracking(JsonNode stopTime) {
         int userId = userService.getUserId();
 
 
@@ -58,11 +58,11 @@ public class TrackingService {
         if (stop == -1L || start == -1L || workId == -1L || shelfId == -1L ){
             log.warn("User: " + userId + "| stop time, start time, workId, shelfId is missing");
             log.warn("User: " + userId + "| no duration added ");
-            return;
+            return 0;
         }
 
         int durationInSeconds = (int)(stop - start) / 1000;
-        libraryService.addDurationToWork(userId, workId, durationInSeconds, shelfId);
+        return libraryService.addDurationToWork(userId, workId, durationInSeconds, shelfId);
     }
 
     public JsonNode getTracking() {
