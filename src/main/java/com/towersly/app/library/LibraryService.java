@@ -78,14 +78,14 @@ public class LibraryService {
         return shelves;
     }
 
-    public void addDurationToWork(int userId, long workId, int durationInSeconds) {
+    public void addDurationToWork(int userId, long workId, int durationInSeconds, long shelfId) {
 //        ShelfWithUserId shelfWithUserId = shelfDAO.readShelfWithUserIdContainingWork(workId);
 //        if (shelfWithUserId.getUserId() != userId) {
 //            log.warn("User: " + userId + "| Trying to write to Work with id: " + workId + ", User: " + shelfWithUserId.getUserId());
 //            log.warn("Duration to Work with : " + workId + " not  not added");
 //            return;
 //        }
-        workDAO.updateActualTime(workId, durationInSeconds);
+        workDAO.updateActualTime(workId, durationInSeconds, shelfId);
         log.info("User: " + userId + "| Duration: " + durationInSeconds + " added to Work: " + workId);
     }
 

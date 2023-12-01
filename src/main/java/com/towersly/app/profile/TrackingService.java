@@ -37,6 +37,7 @@ public class TrackingService {
         JsonNode tracking = userDAO.readTracking(userId);
         long start = -1L;
         long workId = -1L;
+        long shelfId = -1L;
         fields = tracking.fields();
         while (fields.hasNext()) {
             var field = fields.next();
@@ -46,19 +47,22 @@ public class TrackingService {
             if (field.getKey().equals("workId")) {
                 workId = field.getValue().asLong();
             }
+            if (field.getKey().equals("shelfId")) {
+                shelfId = field.getValue().asLong();
+            }
         }
 
         userDAO.updateTrackingToNUll(userId);
         log.info("User: " + userId + "| tracking  stopped");
 
-        if (stop == -1L || start == -1L || workId == -1L ){
-            log.warn("User: " + userId + "| stop time, start time or workId is missing");
+        if (stop == -1L || start == -1L || workId == -1L || shelfId == -1L ){
+            log.warn("User: " + userId + "| stop time, start time, workId, shelfId is missing");
             log.warn("User: " + userId + "| no duration added ");
             return;
         }
 
         int durationInSeconds = (int)(stop - start) / 1000;
-        libraryService.addDurationToWork(userId, workId, durationInSeconds);
+        libraryService.addDurationToWork(userId, workId, durationInSeconds, shelfId);
     }
 
     public JsonNode getTracking() {

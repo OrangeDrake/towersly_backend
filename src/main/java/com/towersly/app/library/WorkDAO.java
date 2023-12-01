@@ -40,8 +40,8 @@ public class WorkDAO {
         return work;
     }
 
-    public void updateActualTime(long workId, int durationInSeconds) {
-        String sql = "update public.work set actual_time = actual_time + ? where id = ?";
-        jdbcTemplate.update(sql, durationInSeconds, workId);
+    public void updateActualTime(long workId, int durationInSeconds, long shelfId) {
+        String sql = "update public.work set actual_time = actual_time + ? where (id = ? and shelf_id = ?)";
+        jdbcTemplate.update(sql, durationInSeconds, workId, shelfId);
     }
 }
