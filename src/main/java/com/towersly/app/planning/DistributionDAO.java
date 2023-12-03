@@ -119,7 +119,7 @@ public class DistributionDAO {
         DistributionWithConnectionAndUserId distributions = null;
         String sql = "select connection, user_id from public.distribution where id = ?";
 
-        distributions = jdbcTemplate.queryForObject(sql, new Object[]{id}, ((rs, rowNum) -> {
+        distributions = jdbcTemplate.queryForObject(sql, ((rs, rowNum) -> {
 
             JsonNode connection = null;
             String connectionJson = rs.getString("connection");
@@ -134,7 +134,7 @@ public class DistributionDAO {
 
             return new DistributionWithConnectionAndUserId(connection, rs.getInt("user_id"));
 
-        }));
+        }), id);
         return distributions;
     }
 
@@ -142,7 +142,7 @@ public class DistributionDAO {
         DistributionWithProjectionAndUserId distributions = null;
         String sql = "select projection, user_id from public.distribution where id = ?";
 
-        distributions = jdbcTemplate.queryForObject(sql, new Object[]{id}, ((rs, rowNum) -> {
+        distributions = jdbcTemplate.queryForObject(sql, ((rs, rowNum) -> {
 
             JsonNode projection = null;
             String projectionJson = rs.getString("projection");
@@ -157,7 +157,7 @@ public class DistributionDAO {
 
             return new DistributionWithProjectionAndUserId(projection, rs.getInt("user_id"));
 
-        }));
+        }), id);
         return distributions;
     }
 
