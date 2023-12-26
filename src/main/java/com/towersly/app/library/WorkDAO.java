@@ -23,6 +23,7 @@ public class WorkDAO {
     private JdbcTemplate jdbcTemplate;
 
     final private GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
+
     public Work create(Work work) {
 
         String sql = "insert into public.work (name, is_completed, rank, description, expected_time, actual_time, shelf_id) values (?, ?, ?, ?, ?, ?, ?)";
@@ -40,6 +41,11 @@ public class WorkDAO {
         var id = Objects.requireNonNull(generatedKeyHolder.getKey()).longValue();
         work.setId(id);
         return work;
+    }
+
+        public void update(Work work, long id) {
+            String sql = "update public.work set name = ?, description = ?, expected_time = ?, actual_time = ? WHERE id = ?";
+            jdbcTemplate.update(sql, work.getName(), work.getDescription(), work.getExpectedTime(), work.getActualTime(), id);
     }
 
     public int updateActualTime(long workId, int durationInSeconds, long shelfId) {

@@ -51,7 +51,8 @@ public class LibraryService {
         var shelfWithIdAndNextWorkRankAndUserId = shelfDAO.readShelfWithIdAndNextWorkRankAndUserId(shelfId);
         int userIdFromShelf = shelfWithIdAndNextWorkRankAndUserId.getUserId();
         if (userId != userIdFromShelf) {
-            log.warn("User: " + userId + "| Trying to write to Shelf id: " + shelfWithIdAndNextWorkRankAndUserId.getId() + ", User: " + userIdFromShelf);
+            log.warn("User: " + userId + "| Trying to write to Shelf id: " + shelfWithIdAndNextWorkRankAndUserId.getId()
+                    + ", User: " + userIdFromShelf);
             log.warn("Work: " + work.getName() + " not  created");
             return null;
         }
@@ -62,6 +63,25 @@ public class LibraryService {
 
         log.info("User: " + userId + "| Work: " + work.getName() + " created");
         return createdWork;
+    }
+
+    public void savework(Work work, long workId) {
+        int userId = userService.getUserId();
+        if (userId == 0) {
+            log.warn("Work: " + work.getName() + " not edited");
+            return;
+        }
+        long shelfId = work.getShelfId();
+        var shelfWithIdAndNextWorkRankAndUserId = shelfDAO.readShelfWithIdAndNextWorkRankAndUserId(shelfId);
+        int userIdFromShelf = shelfWithIdAndNextWorkRankAndUserId.getUserId();
+        if (userId != userIdFromShelf) {
+            log.warn("User: " + userId + "| Trying to write to Shelf id: " + shelfWithIdAndNextWorkRankAndUserId.getId()
+                    + ", User: " + userIdFromShelf);
+            log.warn("Work: " + work.getName() + " not  edited");
+            return;
+        }
+        workDAO.update(work, workId);
+        log.info("User: " + userId + "| Work: " + work.getName() + " edited");
     }
 
     public List<ShelfContainingWorks> getAllShelves() {
@@ -79,16 +99,19 @@ public class LibraryService {
     }
 
     public int addDurationToWork(int userId, long workId, int durationInSeconds, long shelfId) {
-//        ShelfWithUserId shelfWithUserId = shelfDAO.readShelfWithUserIdContainingWork(workId);
-//        if (shelfWithUserId.getUserId() != userId) {
-//            log.warn("User: " + userId + "| Trying to write to Work with id: " + workId + ", User: " + shelfWithUserId.getUserId());
-//            log.warn("Duration to Work with : " + workId + " not  not added");
-//            return;
-//        }
+        // ShelfWithUserId shelfWithUserId =
+        // shelfDAO.readShelfWithUserIdContainingWork(workId);
+        // if (shelfWithUserId.getUserId() != userId) {
+        // log.warn("User: " + userId + "| Trying to write to Work with id: " + workId +
+        // ", User: " + shelfWithUserId.getUserId());
+        // log.warn("Duration to Work with : " + workId + " not not added");
+        // return;
+        // }
         int actualTime = workDAO.updateActualTime(workId, durationInSeconds, shelfId);
-        log.info("User: " + userId + "| Duration: " + durationInSeconds + " added to Work: " + workId + ", actual time is: " + actualTime);
+        log.info("User: " + userId + "| Duration: " + durationInSeconds + " added to Work: " + workId
+                + ", actual time is: " + actualTime);
         return actualTime;
     }
 
-    //public
+    // public
 }

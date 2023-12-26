@@ -29,4 +29,9 @@ public class LibraryController {
     public Work addWork(@RequestBody Work work) {
         return libraryService.createWork(work);
     }
+
+    @PostMapping("/savework")
+    public void savework(@RequestBody Work work, @RequestParam long workId) {
+        libraryService.savework(work, workId);
+    }
 }
