@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import lombok.ToString;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter

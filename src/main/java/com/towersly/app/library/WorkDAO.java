@@ -1,6 +1,9 @@
 package com.towersly.app.library;
 
 import com.towersly.app.library.model.Work;
+import com.towersly.app.library.model.WorkPosition;
+import com.towersly.app.library.model.WorkUpdateRanks;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -27,7 +30,10 @@ public class WorkDAO {
     public Work create(Work work) {
 
         String sql = "insert into public.work (name, is_completed, rank, description, expected_time, actual_time, shelf_id) values (?, ?, ?, ?, ?, ?, ?)";
-        var decParams = Arrays.asList(new SqlParameter(Types.VARCHAR, "name"), new SqlParameter(Types.BOOLEAN, "is_completed"), new SqlParameter(Types.INTEGER, "rank"), new SqlParameter(Types.VARCHAR, "description"), new SqlParameter(Types.INTEGER, "expected_time"), new SqlParameter(Types.INTEGER, "actual_time" ), new SqlParameter(Types.BIGINT, "shelf_id" ));
+        var decParams = Arrays.asList(new SqlParameter(Types.VARCHAR, "name"),
+                new SqlParameter(Types.BOOLEAN, "is_completed"), new SqlParameter(Types.INTEGER, "rank"),
+                new SqlParameter(Types.VARCHAR, "description"), new SqlParameter(Types.INTEGER, "expected_time"),
+                new SqlParameter(Types.INTEGER, "actual_time"), new SqlParameter(Types.BIGINT, "shelf_id"));
 
         var pscf = new PreparedStatementCreatorFactory(sql, decParams) {
             {
@@ -35,17 +41,19 @@ public class WorkDAO {
                 setGeneratedKeysColumnNames("id");
             }
         };
-        //log.info("Debug: " + work.toString());
-        var psc = pscf.newPreparedStatementCreator(Arrays.asList(work.getName(), work.isCompleted(), work.getRank(), work.getDescription(), work.getExpectedTime(), work.getActualTime(), work.getShelfId()));
+        // log.info("Debug: " + work.toString());
+        var psc = pscf.newPreparedStatementCreator(Arrays.asList(work.getName(), work.isCompleted(), work.getRank(),
+                work.getDescription(), work.getExpectedTime(), work.getActualTime(), work.getShelfId()));
         jdbcTemplate.update(psc, generatedKeyHolder);
         var id = Objects.requireNonNull(generatedKeyHolder.getKey()).longValue();
         work.setId(id);
         return work;
     }
 
-        public void update(Work work, long id) {
-            String sql = "update public.work set name = ?, description = ?, expected_time = ?, actual_time = ? WHERE id = ?";
-            jdbcTemplate.update(sql, work.getName(), work.getDescription(), work.getExpectedTime(), work.getActualTime(), id);
+    public void update(Work work, long id) {
+        String sql = "update public.work set name = ?, description = ?, expected_time = ?, actual_time = ? WHERE id = ?";
+        jdbcTemplate.update(sql, work.getName(), work.getDescription(), work.getExpectedTime(), work.getActualTime(),
+                id);
     }
 
     public int updateActualTime(long workId, int durationInSeconds, long shelfId) {
@@ -58,4 +66,31 @@ public class WorkDAO {
         }
         return 0;
     }
+
+    /*
+     * public void updateWorks(WorkUpdateRanks workUpdateRanks) {
+     * String sql = "update public.work set rank = ? where id = ?";
+     * for (var workPosition : workUpdateRanks.getWorkPositions()) {
+     * jdbcTemplate.update(sql, new Object[] { workPosition.getRank(),
+     * workPosition.getId() });
+     * }
+     * }
+     */
+
+    public void updateWorks(WorkUpdateRanks workUpdateRanks) {
+        String sql = "";
+        Object[] params = new Object[workUpdateRanks.getWorkPositions().size() * 2];
+
+        int i = 0;
+        for (var workPosition : workUpdateRanks.getWorkPositions()) {
+            sql += "update public.work set rank = ? where id = ?;";
+            params[i++] = workPosition.getRank();
+            params[i++] = workPosition.getId();            
+        }
+        jdbcTemplate.update(sql, params);
 }
+
+    public void updateWorksWithShelf(WorkPosition workPositionWithShelf, long shelfId) {
+        String sql = "update public.work set rank = ?, shelf_id = ? where id = ?;";
+        jdbcTemplate.update(sql, workPositionWithShelf.getRank(), shelfId, workPositionWithShelf.getId());
+    }}

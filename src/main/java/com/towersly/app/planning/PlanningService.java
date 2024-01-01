@@ -160,16 +160,6 @@ public class PlanningService {
         DistributionWithProjectionAndUserId distribution = distributionDAO.getDistributionWithProjectionAndUserId(distributionId);
         int userIdFromDistribution = distribution.getUserId();
 
-//        JsonNode nRule = null;
-//
-//        try {
-//            nRule = mapper.readTree(ruleJson);
-//        } catch (JsonProcessingException e) {
-//            log.warn("User: " + userId + "| New Rule JsonProcessingException");
-//            log.warn("User: " + userId + "| Rule for distibution: " + distributionId + " was not creted");
-//            return null;
-//        }
-
         var nRuleFields = nRule.fields();
 
         String nRuleName = "no name";

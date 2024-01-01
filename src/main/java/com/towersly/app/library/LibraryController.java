@@ -1,5 +1,7 @@
 package com.towersly.app.library;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import com.towersly.app.library.model.Shelf;
 import com.towersly.app.library.model.ShelfContainingWorks;
 import com.towersly.app.library.model.Work;
@@ -34,4 +36,10 @@ public class LibraryController {
     public void savework(@RequestBody Work work, @RequestParam long workId) {
         libraryService.savework(work, workId);
     }
+
+    @PostMapping("/updateworks")
+    public void updateWorks(@RequestBody JsonNode worksUpdate) {
+        libraryService.updateWorks(worksUpdate);
+    }
+
 }
