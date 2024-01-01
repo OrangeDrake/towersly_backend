@@ -52,4 +52,5 @@ public class UserService {
     public void updateNextDistributionRank(int id, int nextDistributionRank) {
         userDAO.updateNextDistributionfRank(id, nextDistributionRank);
     }
+
 }

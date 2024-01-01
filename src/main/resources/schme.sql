@@ -6,6 +6,9 @@ CREATE TABLE IF NOT EXISTS public.user
     next_shelf_rank integer NOT NULL
 );
 
+ALTER TABLE public.user ADD COLUMN visible_works integer;
+UPDATE public.user SET visible_works = 5;
+
 
 CREATE TABLE IF NOT EXISTS public.shelf
 (
