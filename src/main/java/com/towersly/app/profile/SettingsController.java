@@ -14,6 +14,12 @@ public class SettingsController {
 
     @GetMapping(value = "/worksnumber")
     public int getNumberOfVisibleWorks() {
-        return 6;
+        return settingsService.getNumberOfVisibleWorks();
     }
+
+    @GetMapping(value = "/setworksnumber")
+    public void setNumberOfVisibleWorks(@RequestParam int numberOfVisibleWorks) {
+       settingsService.setNumberOfVisibleWorks(numberOfVisibleWorks);
+    }
+
 }

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class UserService {
 
-    UserDAO userDAO;
+    private UserDAO userDAO;
 
     public int getUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

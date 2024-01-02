@@ -21,17 +21,17 @@ public class UserDAO {
     final private ObjectMapper mapper = new ObjectMapper();
 
     public int getUserId(String name) {
-        String sql = "select id from public.user where name = ?";
+        String sql = "SELECT id from public.user where name = ?";
         int userID = jdbcTemplate.queryForObject(sql, Integer.class, name);
         return userID;
     }
 
     public UserWithIdAndNextShelfRank getUserWithIdAndNextShelfRank(String name) {
-        String sql = "select id, next_shelf_rank from public.user where name = ?";
+        String sql = "SELECT id, next_shelf_rank from public.user where name = ?";
         UserWithIdAndNextShelfRank userWithIdAndNextShelfRank = null;
         try {
-            userWithIdAndNextShelfRank = jdbcTemplate.queryForObject(sql, new Object[]{name}, (rs, rownumber) ->
-                    new UserWithIdAndNextShelfRank(rs.getInt("id"), rs.getInt("next_shelf_rank")));
+            userWithIdAndNextShelfRank = jdbcTemplate.queryForObject(sql, new Object[] { name },
+                    (rs, rownumber) -> new UserWithIdAndNextShelfRank(rs.getInt("id"), rs.getInt("next_shelf_rank")));
         } catch (DataAccessException ex) {
             log.error("User not found: " + name);
         }
@@ -39,11 +39,12 @@ public class UserDAO {
     }
 
     public UserWithIdAndNextDistributionRank getUserWithIdAndNextDistributionRank(String name) {
-        String sql = "select id, next_distribution_rank from public.user where name = ?";
+        String sql = "SELECT id, next_distribution_rank from public.user where name = ?";
         UserWithIdAndNextDistributionRank userWithIdAndNextDistributionRank = null;
         try {
-            userWithIdAndNextDistributionRank = jdbcTemplate.queryForObject(sql, new Object[]{name}, (rs, rownumber) ->
-                    new UserWithIdAndNextDistributionRank(rs.getInt("id"), rs.getInt("next_distribution_rank")));
+            userWithIdAndNextDistributionRank = jdbcTemplate.queryForObject(sql, new Object[] { name },
+                    (rs, rownumber) -> new UserWithIdAndNextDistributionRank(rs.getInt("id"),
+                            rs.getInt("next_distribution_rank")));
         } catch (DataAccessException ex) {
             log.error("User not found: " + name);
         }
@@ -51,12 +52,12 @@ public class UserDAO {
     }
 
     public void updateNextShelfRank(int id, int nextShelfRank) {
-        String sql = "update public.user set next_shelf_rank = ? WHERE id = ?";
+        String sql = "UPDATE public.user set next_shelf_rank = ? WHERE id = ?";
         jdbcTemplate.update(sql, nextShelfRank, id);
     }
 
     public void updateNextDistributionfRank(int id, int nexDistributionRank) {
-        String sql = "update public.user set next_distribution_rank = ? WHERE id = ?";
+        String sql = "UPDATE public.user set next_distribution_rank = ? WHERE id = ?";
         jdbcTemplate.update(sql, nexDistributionRank, id);
     }
 
@@ -73,7 +74,7 @@ public class UserDAO {
     public JsonNode readTracking(int id) {
         String sql = "SELECT tracking from public.user where id = ? ";
 
-        return jdbcTemplate.queryForObject(sql, new Object[]{id}, ((rs, rowNum) -> {
+        return jdbcTemplate.queryForObject(sql, new Object[] { id }, ((rs, rowNum) -> {
             JsonNode tracking = null;
             String trackingJson = rs.getString("tracking");
 
@@ -82,12 +83,22 @@ public class UserDAO {
             }
 
             try {
-                    tracking = mapper.readTree(trackingJson);
+                tracking = mapper.readTree(trackingJson);
             } catch (JsonProcessingException e) {
                 log.error("User: " + id + "| Tracking json parsing error");
                 return null;
             }
             return tracking;
         }));
+    }
+
+    public int readNumberOfVisibleWorks(int id) {
+        String sql = "SELECT visible_works from public.user where id = ? ";
+        return jdbcTemplate.queryForObject(sql, Integer.class, id);
+    }
+
+    public void updateNumberOfVisibleWorks(int id, int numberOfVisibleWorks) {
+        String sql = "UPDATE public.user SET visible_works = numberOfVisibleWorks WHERE id = ?";
+        jdbcTemplate.update(sql, numberOfVisibleWorks, id);
     }
 }

@@ -11,9 +11,9 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class TrackingService {
 
-    UserDAO userDAO;
-    UserService userService;
-    LibraryService libraryService;
+    private UserDAO userDAO;
+    private UserService userService;
+    private LibraryService libraryService;
 
 
     public void startTracking(JsonNode tracking) {
