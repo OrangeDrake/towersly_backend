@@ -98,7 +98,7 @@ public class UserDAO {
     }
 
     public void updateNumberOfVisibleWorks(int id, int numberOfVisibleWorks) {
-        String sql = "UPDATE public.user SET visible_works = numberOfVisibleWorks WHERE id = ?";
+        String sql = "UPDATE public.user SET visible_works = ? WHERE id = ?";
         jdbcTemplate.update(sql, numberOfVisibleWorks, id);
     }
 }
