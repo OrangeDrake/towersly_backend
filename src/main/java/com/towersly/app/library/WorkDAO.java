@@ -1,8 +1,8 @@
 package com.towersly.app.library;
 
 import com.towersly.app.library.model.Work;
-import com.towersly.app.library.model.WorkPosition;
-import com.towersly.app.library.model.WorkUpdateRanks;
+import com.towersly.app.library.model.Position;
+import com.towersly.app.library.model.UpdateRanks;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -77,20 +77,21 @@ public class WorkDAO {
      * }
      */
 
-    public void updateWorks(WorkUpdateRanks workUpdateRanks) {
-        String sql = "";
-        Object[] params = new Object[workUpdateRanks.getWorkPositions().size() * 2];
+    public void updateWorks(UpdateRanks workUpdateRanks) {
+        Object[] params = new Object[workUpdateRanks.getPositions().size() * 2];
 
         int i = 0;
-        for (var workPosition : workUpdateRanks.getWorkPositions()) {
-            sql += "update public.work set rank = ? where id = ?;";
+        StringBuilder sb = new StringBuilder();
+        for (var workPosition : workUpdateRanks.getPositions()) {
+            sb.append("update public.work set rank = ? where id = ?;");
             params[i++] = workPosition.getRank();
             params[i++] = workPosition.getId();            
         }
+        String sql = sb.toString();
         jdbcTemplate.update(sql, params);
 }
 
-    public void updateWorksWithShelf(WorkPosition workPositionWithShelf, long shelfId) {
+    public void updateWorksWithShelf(Position workPositionWithShelf, long shelfId) {
         String sql = "update public.work set rank = ?, shelf_id = ? where id = ?;";
         jdbcTemplate.update(sql, workPositionWithShelf.getRank(), shelfId, workPositionWithShelf.getId());
     }}

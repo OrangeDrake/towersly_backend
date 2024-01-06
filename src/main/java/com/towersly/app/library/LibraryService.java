@@ -1,15 +1,12 @@
 package com.towersly.app.library;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.towersly.app.library.model.Shelf;
 import com.towersly.app.library.model.ShelfContainingWorks;
 import com.towersly.app.library.model.Work;
-import com.towersly.app.library.model.WorkPosition;
-import com.towersly.app.library.model.WorkUpdateRanks;
+import com.towersly.app.library.model.Position;
+import com.towersly.app.library.model.UpdateRanks;
 import com.towersly.app.profile.UserService;
 import com.towersly.app.profile.model.UserWithIdAndNextShelfRank;
 import lombok.AllArgsConstructor;
@@ -24,6 +21,7 @@ import java.util.List;
 public class LibraryService {
 
     private final int WORK_RANK_SHIFT = 100;
+    private final int SHELF_RANK_SHIFT = 100;
 
     private ShelfDAO shelfDAO;
     private WorkDAO workDAO;
@@ -108,7 +106,30 @@ public class LibraryService {
         return shelves;
     }
 
-    private boolean extractWorkPositionFromJson(JsonNode work, WorkUpdateRanks workUpdateRanks, int userId) {
+    private boolean extractPositionFromJson(JsonNode works, UpdateRanks updateRanks, int userId) {
+        for (var work : works) {
+            var workFields = work.fields();
+            long entityId = -1;
+            int entityRank = -1;
+            while (workFields.hasNext()) {
+                var workField = workFields.next();
+                if (workField.getKey().equals(("id"))) {
+                    entityId = workField.getValue().asLong();
+                }
+                if (workField.getKey().equals(("rank"))) {
+                    entityRank = workField.getValue().asInt();
+                }
+            }
+            if (entityId == -1 || entityRank == -1) {
+                log.warn("User: " + userId + "|entityId or entityRank is missing");
+                return false;
+            }
+            updateRanks.addPosition(entityId, entityRank);
+        }
+        return true;
+    }
+
+    private Position getWorkPositionFromJson(JsonNode work, int userId) {
         var workFields = work.fields();
         long workId = -1;
         int workRank = -1;
@@ -122,33 +143,11 @@ public class LibraryService {
             }
         }
         if (workId == -1 || workRank == -1) {
-            log.warn("User: " + userId + "| workId or workRank is missing");
-            log.warn("User: " + userId + "|Works not updated");
-            return false;
-        }
-        workUpdateRanks.addWorkPosition(workId, workRank);
-        return true;
-    }
-
-    private WorkPosition getWorkPositionFromJson(JsonNode work, int userId) {
-         var workFields = work.fields();
-        long workId = -1;
-        int workRank = -1;
-        while (workFields.hasNext()) {
-            var workField = workFields.next();
-            if (workField.getKey().equals(("id"))) {
-                workId = workField.getValue().asLong();
-            }
-            if (workField.getKey().equals(("rank"))) {
-                workRank = workField.getValue().asInt();
-            }
-        }
-        if (workId == -1 || workRank == -1) {
-            log.warn("User: " + userId + "| workId or workRank is missing");
-            log.warn("User: " + userId + "|Works not updated");
+            log.warn("User: " + userId + "|workId or workRank is missing");
+            log.warn("User: " + userId + "|works not updated");
             return null;
         }
-        return new WorkPosition(workId, workRank);
+        return new Position(workId, workRank);
     }
 
     public void updateWorks(JsonNode worksUpdate) {
@@ -164,7 +163,7 @@ public class LibraryService {
         long shelfId = -1;
         int worksMaxRank = -1;
         JsonNode workNewInShelf = null;
-        WorkUpdateRanks workUpdateRanks = new WorkUpdateRanks();
+        UpdateRanks workUpdateRanks = new UpdateRanks();
 
         while (worksUpdateFields.hasNext()) {
             var workUpdateField = worksUpdateFields.next();
@@ -176,10 +175,9 @@ public class LibraryService {
             }
             if (workUpdateField.getKey().equals("works")) {
                 var works = workUpdateField.getValue();
-                for (JsonNode work : works) {
-                    if (!extractWorkPositionFromJson(work, workUpdateRanks, userId)) {
-                        return;
-                    }
+                if (!extractPositionFromJson(works, workUpdateRanks, userId)) {
+                    log.warn("User: " + userId + "|works not updated");
+                    return;
                 }
             }
             if (workUpdateField.getKey().equals("workNewInShelf")) {
@@ -188,8 +186,8 @@ public class LibraryService {
         }
 
         if (shelfId == -1 || worksMaxRank == -1) {
-            log.warn("User: " + userId + "| shelfId or workMaxRank is missing");
-            log.warn("User: " + userId + "|Works not updated");
+            log.warn("User: " + userId + "|shelfId or workMaxRank is missing");
+            log.warn("User: " + userId + "|works not updated");
             return;
         }
 
@@ -198,7 +196,7 @@ public class LibraryService {
         if (userId != userIdFromShelf) {
             log.warn("User: " + userId + "| Trying to write to Shelf id: " + shelfWithIdAndNextWorkRankAndUserId.getId()
                     + ", User: " + userIdFromShelf);
-            log.warn("User: " + userId + "|Works not  updated");
+            log.warn("User: " + userId + "|works not  updated");
             return;
         }
 
@@ -207,7 +205,7 @@ public class LibraryService {
         }
 
         if (workNewInShelf != null) {
-            WorkPosition workPositionWithShelf = null;
+            Position workPositionWithShelf = null;
             workPositionWithShelf = getWorkPositionFromJson(workNewInShelf, userId);
             if (workPositionWithShelf == null) {
                 return;
@@ -216,7 +214,53 @@ public class LibraryService {
         }
 
         workDAO.updateWorks(workUpdateRanks);
-        log.info("User: " + userId + "| Works updated");
+        log.info("User: " + userId + "|works updated");
+    }
+
+    public void updateShelves(JsonNode shelvesUpdate) {
+
+        var userWithIdAndNextShelfRank = userService.getUserWithIdAndNextShelfRank();
+        int userId = userWithIdAndNextShelfRank.getId();
+        if (userId == 0) {
+            log.warn("User: " + userId + "|shelves not updated");
+            return;
+        }
+
+        var shelvesUpdateFields = shelvesUpdate.fields();
+
+        //long shelfId = -1;
+        int shelvesMaxRank = -1;
+        JsonNode workNewInShelf = null;
+        UpdateRanks shelvesUpdateRanks = new UpdateRanks();
+
+        while (shelvesUpdateFields.hasNext()) {
+            var shelfUpdateField = shelvesUpdateFields.next();
+            if (shelfUpdateField.getKey().equals("maxRank")) {
+                shelvesMaxRank = shelfUpdateField.getValue().asInt();
+            }
+            if (shelfUpdateField.getKey().equals("shelves")) {
+                var shelves = shelfUpdateField.getValue();
+                if (!extractPositionFromJson(shelves, shelvesUpdateRanks, userId)) {
+                    log.warn("User: " + userId + "|shelves not updated");
+                    return;
+                }
+            }
+        }
+
+        if (shelvesMaxRank == -1) {
+            log.warn("User: " + userId + "|shelvesMaxRank is missing");
+            log.warn("User: " + userId + "|shelves not updated");
+            return;
+        }
+
+        int nextShelfRank = userWithIdAndNextShelfRank.getNextShelfRank();
+
+        if (shelvesMaxRank >= nextShelfRank) {
+            userService.updateNextShelfRank(userId, shelvesMaxRank + SHELF_RANK_SHIFT);
+        }
+
+        shelfDAO.updateShelves(shelvesUpdateRanks);
+        log.info("User: " + userId + "|shelves updated");
     }
 
     public int addDurationToWork(int userId, long workId, int durationInSeconds, long shelfId) {

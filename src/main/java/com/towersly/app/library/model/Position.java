@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class WorkPosition {
+public class Position {
     protected long id;
     protected int rank;
 }

@@ -42,4 +42,9 @@ public class LibraryController {
         libraryService.updateWorks(worksUpdate);
     }
 
+    @PostMapping("/updateshelves")
+    public void updateShelves(@RequestBody JsonNode shelvesUpdate) {
+        libraryService.updateShelves(shelvesUpdate);
+    }
+
 }

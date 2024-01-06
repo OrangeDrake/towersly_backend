@@ -94,5 +94,18 @@ public class ShelfDAO {
         jdbcTemplate.update(sql, nextWorkRank, id);
     }
 
+    public void updateShelves(UpdateRanks shelvesUpdateRanks) {
+        Object[] params = new Object[shelvesUpdateRanks.getPositions().size() * 2];
+
+        int i = 0;
+        StringBuilder sb = new StringBuilder();
+        for (var position : shelvesUpdateRanks.getPositions()) {
+            sb.append("update public.shelves set rank = ? where id = ?;");
+            params[i++] = position.getRank();
+            params[i++] = position.getId();
+        }
+        String sql = sb.toString();
+        jdbcTemplate.update(sql, params);
+    }
 }
 
