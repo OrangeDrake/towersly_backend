@@ -100,7 +100,7 @@ public class ShelfDAO {
         int i = 0;
         StringBuilder sb = new StringBuilder();
         for (var position : shelvesUpdateRanks.getPositions()) {
-            sb.append("update public.shelves set rank = ? where id = ?;");
+            sb.append("update public.shelf set rank = ? where id = ?;");
             params[i++] = position.getRank();
             params[i++] = position.getId();
         }
