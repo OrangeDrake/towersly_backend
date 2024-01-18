@@ -6,13 +6,13 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://${PROD_KEYCLOAK_HOST}/realms/master2
+          issuer-uri: http://localhost:8080/realms/master2
           jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
 
   datasource:
-    url: jdbc:postgresql://${PROD_DB_HOST}/${PROD_DB_NAME}
-    username: ${PROD_DB_USERNAME}
-    password: ${PROD_DB_PASSWORD}
+    url: jdbc:postgresql://localhost:5432/towersly_app
+    username: postgres
+    password: postgre
 
 #  main:
 #    allow-circular-references: true
