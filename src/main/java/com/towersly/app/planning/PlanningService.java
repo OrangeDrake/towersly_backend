@@ -39,22 +39,22 @@ public class PlanningService {
         distribution.setActive(true);
         Distribution createdDistribution = distributionDAO.create(distribution);
         if (createdDistribution == null) {
-            log.warn("User: " + userId + "| Distribution: " + distribution.getName() + " not  creted");
+            log.warn("User: " + userId + "|distribution: " + distribution.getName() + " not  creted");
             return null;
         }
-        log.info("User: " + userId + "| Distribution: " + distribution.getName() + " creted");
+        log.info("User: " + userId + "|distribution: " + distribution.getName() + " creted");
         return createdDistribution;
     }
 
     public List<Distribution> getAllDistributions() {
         int userId = userService.getUserId();
         if (userId == 0) {
-            log.warn("User: " + userId + "|Shelves not received");
+            log.warn("User: " + userId + "|shelves not received");
             return null;
         }
         List<Distribution> distributions = distributionDAO.readAllDistributions(userId);
         if (distributions == null) {
-            log.warn("User: " + userId + "| Distributions not received");
+            log.warn("User: " + userId + "|distributions not received");
             return null;
         }
         return distributions;
@@ -66,8 +66,8 @@ public class PlanningService {
         int userIdFromDistribution = distribution.getUserId();
 
         if (userId != userIdFromDistribution) {
-            log.warn("User: " + userId + "| Trying to write to Distribution id: " + distributionId + ", User: " + userIdFromDistribution);
-            log.warn("User: " + userId + "| Connection to shelf: " + shelfName + " in distribution: " + distributionId + " was not creted");
+            log.warn("User: " + userId + "|trying to write to Distribution id: " + distributionId + ", User: " + userIdFromDistribution);
+            log.warn("User: " + userId + "|connection to shelf: " + shelfName + " in distribution: " + distributionId + " was not creted");
             return null;
         }
 
@@ -79,13 +79,13 @@ public class PlanningService {
             try {
                 connection = mapper.readTree(connectionJson);
             } catch (JsonProcessingException e) {
-                log.warn("User: " + userId + "| JsonProcessingException");
-                log.warn("User: " + userId + "| Connection to shelf: " + shelfName + " in distribution: " + distributionId + " was not creted");
+                log.warn("User: " + userId + "|jsonProcessingException");
+                log.warn("User: " + userId + "|connection to shelf: " + shelfName + " in distribution: " + distributionId + " was not creted");
                 return null;
             }
 
             distributionDAO.createConnection(distributionId, connectionJson);
-            log.info("User: " + userId + "| Connection to shelf: " + shelfName + " in distribution: " + distributionId + " was creted");
+            log.info("User: " + userId + "|connection to shelf: " + shelfName + " in distribution: " + distributionId + " was creted");
             return connection;
         }
 
@@ -100,8 +100,8 @@ public class PlanningService {
                 for (JsonNode shelf_name : shelves_names) {
                     numberofConections++;
                     if (shelf_name.asText().equals(shelfName)) {
-                        log.warn("User: " + userId + "| Shlelve name: " + shelfName + " is alredy connected in distribution: " + distributionId);
-                        log.warn("User: " + userId + "| Connection to shelf: " + shelfName + " in distribution: " + distributionId + "was not  creted");
+                        log.warn("User: " + userId + "|shlelve name: " + shelfName + " is alredy connected in distribution: " + distributionId);
+                        log.warn("User: " + userId + "|connection to shelf: " + shelfName + " in distribution: " + distributionId + "was not  creted");
                         return null;
                     }
                 }
@@ -119,7 +119,7 @@ public class PlanningService {
 
         distributionDAO.createConnection(distributionId, connection.toString());
 
-        log.info("User: " + userId + "| Connection to shelf: " + shelfName + " in distribution: " + distributionId + " was creted");
+        log.info("User: " + userId + "|connection to shelf: " + shelfName + " in distribution: " + distributionId + " was creted");
         return connection;
     }
 
@@ -129,13 +129,13 @@ public class PlanningService {
         int userIdFromDistribution = distribution.getUserId();
 
         if (userId != userIdFromDistribution) {
-            log.warn("User: " + userId + "| Trying to remove in Distribution id: " + distributionId + ", User: " + userIdFromDistribution);
-            log.warn("User: " + userId + "| Connection to shelf: " + shelfName + " in distribution: " + distributionId + " not  removed");
+            log.warn("User: " + userId + "|trying to remove in Distribution id: " + distributionId + ", User: " + userIdFromDistribution);
+            log.warn("User: " + userId + "|connection to shelf: " + shelfName + " in distribution: " + distributionId + " not  removed");
             return;
         }
 
         distributionDAO.deleteConnectedShelf(distributionId, shelfName);
-        log.info("User: " + userId + "| Connection to shelf: " + shelfName + " in distribution: " + distributionId + " removed");
+        log.info("User: " + userId + "|connection to shelf: " + shelfName + " in distribution: " + distributionId + " removed");
     }
 
     public void changeConnectingType(Long distributionId, String type) {
@@ -144,14 +144,14 @@ public class PlanningService {
         int userIdFromDistribution = distribution.getUserId();
 
         if (userId != userIdFromDistribution) {
-            log.warn("User: " + userId + "| Trying to remove in Distribution id: " + distributionId + ", User: " + userIdFromDistribution);
-            log.warn("User: " + userId + "| Connecting type was not changed to: " + type + " in distribution: " + distributionId);
+            log.warn("User: " + userId + "|trying to remove in Distribution id: " + distributionId + ", User: " + userIdFromDistribution);
+            log.warn("User: " + userId + "|connecting type was not changed to: " + type + " in distribution: " + distributionId);
             return;
         }
 
         String typeJson = "\"" + type + "\"";
         distributionDAO.updateConnectingType(distributionId, typeJson);
-        log.info("User: " + userId + "| Connecting type was changed to: " + type + " in distribution: " + distributionId);
+        log.info("User: " + userId + "|connecting type was changed to: " + type + " in distribution: " + distributionId);
     }
 
 
@@ -173,8 +173,8 @@ public class PlanningService {
         }
 
         if (userId != userIdFromDistribution) {
-            log.warn("User: " + userId + "| Trying to write to Distribution id: " + distributionId + ", User: " + userIdFromDistribution);
-            log.warn("User: " + userId + "| Rule: " + nRuleName + " in distribution: " + distributionId + " was not creted");
+            log.warn("User: " + userId + "|trying to write to Distribution id: " + distributionId + ", User: " + userIdFromDistribution);
+            log.warn("User: " + userId + "|rule: " + nRuleName + " in distribution: " + distributionId + " was not creted");
             return null;
         }
 
@@ -188,8 +188,8 @@ public class PlanningService {
             try {
                 projection = mapper.readTree(projectionJson);
             } catch (JsonProcessingException e) {
-                log.warn("User: " + userId + "| Create Projection JsonProcessingException");
-                log.warn("User: " + userId + "| Rule: " + nRuleName + " in distribution: " + distributionId + " was not creted");
+                log.warn("User: " + userId + "|create Projection JsonProcessingException");
+                log.warn("User: " + userId + "|rule: " + nRuleName + " in distribution: " + distributionId + " was not creted");
                 return null;
             }
         }
@@ -200,13 +200,11 @@ public class PlanningService {
             if (projectionField.getKey().equals("rules")) {
                 var rulesArray = (ArrayNode) projectionField.getValue();
                 rulesArray.add(nRule);
-                log.info("User: " + userId + "| Rule: " + nRuleName + " in distribution: " + distributionId + " was creted");
+                log.info("User: " + userId + "|rule: " + nRuleName + " in distribution: " + distributionId + " was creted");
                 break;
             }
         }
-
         distributionDAO.createProjection(distributionId, projection.toString());
         return projection;
-
     }
 }
