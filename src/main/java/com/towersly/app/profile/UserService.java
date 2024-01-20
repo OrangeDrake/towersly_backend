@@ -3,17 +3,26 @@ package com.towersly.app.profile;
 import com.towersly.app.profile.model.UserWithIdAndNextDistributionRank;
 import com.towersly.app.profile.model.UserWithIdAndNextShelfRank;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserService {
 
-    private UserDAO userDAO;
+    @Value("${library.shelf-rank-shift}")
+    private int SHELF_RANK_SHIFT;
+    @Value("${library.work-rank-shift}")
+    private int WORK_RANK_SHIFT;
+
+    private final int INIT_VISIBLE_WORKS = 5;
+
+    private final UserDAO userDAO;
 
     public int getUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -51,6 +60,22 @@ public class UserService {
 
     public void updateNextDistributionRank(int id, int nextDistributionRank) {
         userDAO.updateNextDistributionfRank(id, nextDistributionRank);
+    }
+
+    public void creteUserProfileIfNeeded() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String name = authentication.getName();
+        int id = userDAO.getUserId(name);
+        if (id == 0) {
+            id = createNewProfile(name);
+            log.info("User: " + id + " created");
+            return;
+        }
+        log.info("User: " + id + " already exist");
+    }
+
+    private int createNewProfile(String name) {
+        return userDAO.createNewProfile(name, SHELF_RANK_SHIFT, WORK_RANK_SHIFT, INIT_VISIBLE_WORKS);
     }
 
 }

@@ -10,22 +10,27 @@ import com.towersly.app.library.model.UpdateRanks;
 import com.towersly.app.profile.UserService;
 import com.towersly.app.profile.model.UserWithIdAndNextShelfRank;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 @Slf4j
-@AllArgsConstructor
+//@AllArgsConstructor
+@RequiredArgsConstructor
 public class LibraryService {
 
-    private final int WORK_RANK_SHIFT = 100;
-    private final int SHELF_RANK_SHIFT = 100;
+    @Value("${library.work-rank-shift}")
+    private int WORK_RANK_SHIFT;
+    @Value("${library.shelf-rank-shift}")
+    private int SHELF_RANK_SHIFT;
 
-    private ShelfDAO shelfDAO;
-    private WorkDAO workDAO;
-    private UserService userService;
+    private final ShelfDAO shelfDAO;
+    private final WorkDAO workDAO;
+    private final UserService userService;
 
     public ShelfContainingWorks addShelf(Shelf shelf) {
         UserWithIdAndNextShelfRank userWithIdAndNextShelfRank = userService.getUserWithIdAndNextShelfRank();
@@ -35,10 +40,12 @@ public class LibraryService {
         }
         int rank = userWithIdAndNextShelfRank.getNextShelfRank();
         int userId = userWithIdAndNextShelfRank.getId();
-        shelf.setRank(rank++);
+        shelf.setRank(rank);
+        rank += SHELF_RANK_SHIFT;
         userService.updateNextShelfRank(userId, rank);
         shelf.setUserId(userId);
         shelf.setActive(true);
+        shelf.setNextWorkRank(WORK_RANK_SHIFT);
         ShelfContainingWorks createdShelf = shelfDAO.create(shelf);
         if (createdShelf == null) {
             log.warn("User: " + userId + "| Shelf: " + shelf.getName() + " not created");

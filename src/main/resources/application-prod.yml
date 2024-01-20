@@ -23,7 +23,12 @@ jwt:
       resource-id: t_client
       principle-attribute: preferred_username
 
+#profile:
 
+
+library:
+  work-rank-shift: 100
+  shelf-rank-shift: 100
 
 #logging:
 #  file:

@@ -1,13 +1,17 @@
+
+--nezkontrolovano
 CREATE TABLE IF NOT EXISTS public.user
 (
     id serial PRIMARY KEY,
     name character varying(255) UNIQUE NOT NULL CHECK (name <> ''),
     next_distribution_rank integer NOT NULL,
-    next_shelf_rank integer NOT NULL
+    next_shelf_rank integer NOT NULL,
+    visible_works integer NOT NULL,
+    tracking jsonb
 );
 
-ALTER TABLE public.user ADD COLUMN visible_works integer;
-UPDATE public.user SET visible_works = 5;
+--ALTER TABLE public.user ADD COLUMN visible_works integer;
+--UPDATE public.user SET visible_works = 5;
 
 
 CREATE TABLE IF NOT EXISTS public.shelf
@@ -35,7 +39,7 @@ CREATE TABLE IF NOT EXISTS public.work
     actual_time integer NOT NULL,
     shelf_id bigint NOT NULL REFERENCES public.shelf(id),
     UNIQUE (shelf_id, name)
-)
+);
 
 CREATE TABLE IF NOT EXISTS public.distribution
 (
