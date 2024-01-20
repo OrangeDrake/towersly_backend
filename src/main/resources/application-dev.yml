@@ -14,15 +14,17 @@ spring:
     username: postgres
     password: postgre
 
-#  main:
-#    allow-circular-references: true
-
 jwt:
   auth:
     converter:
       resource-id: t_client
       principle-attribute: preferred_username
 
+#profile:
+
+library:
+  work-rank-shift: 100
+  shelf-rank-shift: 100
 
 
 #logging:

@@ -8,8 +8,16 @@ import com.towersly.app.profile.model.UserWithIdAndNextShelfRank;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreatorFactory;
+import org.springframework.jdbc.core.SqlParameter;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
+
+import java.sql.Types;
+import java.util.Arrays;
+import java.util.Objects;
 
 @Component
 @Slf4j
@@ -19,11 +27,15 @@ public class UserDAO {
     private JdbcTemplate jdbcTemplate;
 
     final private ObjectMapper mapper = new ObjectMapper();
+    final private GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
 
     public int getUserId(String name) {
         String sql = "SELECT id from public.user where name = ?";
-        int userID = jdbcTemplate.queryForObject(sql, Integer.class, name);
-        return userID;
+        try {
+            return jdbcTemplate.queryForObject(sql, Integer.class, name);
+        }catch (EmptyResultDataAccessException e){
+            return 0;
+        }
     }
 
     public UserWithIdAndNextShelfRank getUserWithIdAndNextShelfRank(String name) {
@@ -100,5 +112,23 @@ public class UserDAO {
     public void updateNumberOfVisibleWorks(int id, int numberOfVisibleWorks) {
         String sql = "UPDATE public.user SET visible_works = ? WHERE id = ?";
         jdbcTemplate.update(sql, numberOfVisibleWorks, id);
+    }
+
+    public int createNewProfile(String name, int nextDistributionRank, int nextShelfRank, int visibleWorks ) {
+        String sql = "insert into public.user (name, next_distribution_rank, next_shelf_rank, visible_works ) values (?, ?, ?, ?)";
+        var decParams = Arrays.asList(new SqlParameter(Types.VARCHAR, "name"),
+                new SqlParameter(Types.INTEGER, "next_distribution_rank"), new SqlParameter(Types.INTEGER, "next_shelf_rank"),
+                new SqlParameter(Types.INTEGER, "visible_works"));
+
+        var pscf = new PreparedStatementCreatorFactory(sql, decParams) {
+            {
+                setReturnGeneratedKeys(true);
+                setGeneratedKeysColumnNames("id");
+            }
+        };
+
+        var psc = pscf.newPreparedStatementCreator(Arrays.asList(name, nextDistributionRank, nextShelfRank, visibleWorks ));
+        jdbcTemplate.update(psc, generatedKeyHolder);
+        return Objects.requireNonNull(generatedKeyHolder.getKey()).intValue();
     }
 }
