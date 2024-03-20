@@ -53,4 +53,14 @@ CREATE TABLE IF NOT EXISTS public.distribution
     UNIQUE (user_id, name)
 );
 
+CREATE TABLE IF NOT EXISTS public.calendar (
+    id bigserial PRIMARY KEY,
+    year_and_weeknumber integer NOT NULL,
+    plan jsonb,
+    user_id NOT NULL REFERENCES public.user(id)
+);
+
+CREATE INDEX year_weeknumber_user
+ON public.calendar (year_and_weeknumber, user_id);
+
 

@@ -8,14 +8,13 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "/user")
-@Slf4j
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
     @GetMapping(value = "/create")
-    public void getTracking() {
+    public void creteUserProfileIfNeeded() {
       userService.creteUserProfileIfNeeded();
     }
 }
