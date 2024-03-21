@@ -128,7 +128,7 @@ public class DistributionDAO {
                     connection = mapper.readTree(connectionJson);
                 }
             } catch (JsonProcessingException e) {
-                log.error("Distribution: " + id + "| Distrubution Connection json parsing error");
+                log.error("Distribution: " + id + "|Distrubution Connection json parsing error");
                 return null;
             }
 

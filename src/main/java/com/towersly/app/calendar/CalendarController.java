@@ -16,20 +16,14 @@ public class CalendarController {
 
     private CalendarService calendarService;
 
-
-
     @PostMapping("/addplan")
     public void addPlan(@RequestParam int yearAndWeekNumber, @RequestBody JsonNode plan) {
         System.out.println(plan);
         calendarService.addPlan(yearAndWeekNumber, plan);
     }
 
-//    @GetMapping(value = "/addconnectedshelf")
-//    public JsonNode addConnectedShelf(@RequestParam long distributionId, @RequestParam String shelfName) {
-//        return planningService.addConnectedShelf(distributionId, shelfName);
-//    }
-
-
-
-
+    @GetMapping("/getPlan")
+    public JsonNode getPlan(@RequestParam int yearAndWeekNumber){
+        return calendarService.getPlan(yearAndWeekNumber);
+    }
 }

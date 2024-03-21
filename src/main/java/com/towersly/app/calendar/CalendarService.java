@@ -20,4 +20,9 @@ public class CalendarService {
         int userId = userService.getUserId();
         calendarDAO.createPlan(yearAndWeekNumber, plan.toString(), userId );
     }
+
+    public JsonNode getPlan(int yearAndWeekNumber){
+        int userId = userService.getUserId();
+        return calendarDAO.readPlan(yearAndWeekNumber, userId);
+    }
 }
